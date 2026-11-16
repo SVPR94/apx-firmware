@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: CC-BY-NC-4.0
+# Copyright (c) 2026 Savita Pawar <savitapawar0402@gmail.com>
+# Author: Savita Pawar (SVPR94)
+# Created: 2026
+# Makes platforms/zephyr a Zephyr module so every image of a sysbuild build
+# (application + APX bootloader) finds the APX boards. Registered through
+# ZEPHYR_EXTRA_MODULES (workspace/env.sh, tools/apx_build.py).
+name: apx
+build:
+  settings:
+    board_root: .

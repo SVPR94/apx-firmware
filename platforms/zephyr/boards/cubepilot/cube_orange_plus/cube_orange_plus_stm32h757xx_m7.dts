@@ -1,0 +1,121 @@
+/*
+ * SPDX-License-Identifier: CC-BY-NC-4.0
+ * Copyright (c) 2026 Savita Pawar <savitapawar0402@gmail.com>
+ * Author: Savita Pawar (SVPR94)
+ * Created: 2026
+ *
+ * CubePilot Cube Orange+ flight controller, STM32H757 Cortex-M7.
+ *
+ * Pin and power facts come from the board's published hardware
+ * description (apx hwdef CubeOrangePlus + CubeOrange hwdef.inc):
+ * 24 MHz crystal, SMPS-direct core supply, 128 KB bootloader at the start
+ * of flash, USB OTG FS on PA11/PA12, amber FMU LED on PE12 (low = on),
+ * sensor 3V3 rail enable PE3 (high = on), peripheral 5V enable PA8
+ * (low = on).
+ *
+ * Pinctrl: the LQFP208 table is used because it contains every pin the
+ * Cube uses; alternate-function codes are the same in every package.
+ */
+/dts-v1/;
+#include <st/h7/stm32h757Xi_m7.dtsi>
+#include <st/h7/stm32h757bitx-pinctrl.dtsi>
+#include <zephyr/dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "CubePilot Cube Orange+ (STM32H757 CM7)";
+	compatible = "cubepilot,cube-orange-plus";
+
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,dtcm = &dtcm;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &app_partition;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led_amber: led_amber {
+			gpios = <&gpioe 12 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>;
+			label = "FMU amber LED";
+		};
+	};
+
+	aliases {
+		led0 = &led_amber;
+	};
+
+	zephyr,user {
+		/* Sensor 3V3 rail: off at reset, on before any sensor is probed. */
+		sensors-power-gpios = <&gpioe 3 GPIO_ACTIVE_HIGH>;
+		/* Peripheral 5V rail (GPS/telemetry ports): active low. */
+		periph-5v-power-gpios = <&gpioa 8 GPIO_ACTIVE_LOW>;
+	};
+};
+
+&clk_hse {
+	clock-frequency = <DT_FREQ_M(24)>;
+	status = "okay";
+};
+
+/* USB 48 MHz */
+&clk_hsi48 {
+	status = "okay";
+};
+
+/* 24 MHz / 3 * 100 = 800 MHz VCO; /2 = 400 MHz SYSCLK (VOS1, SMPS direct) */
+&pll {
+	div-m = <3>;
+	mul-n = <100>;
+	div-p = <2>;
+	div-q = <10>;
+	div-r = <2>;
+	clocks = <&clk_hse>;
+	status = "okay";
+};
+
+&rcc {
+	clocks = <&pll>;
+	clock-frequency = <DT_FREQ_M(400)>;
+	d1cpre = <1>;
+	hpre = <2>;
+	d1ppre = <2>;
+	d2ppre1 = <2>;
+	d2ppre2 = <2>;
+	d3ppre = <2>;
+};
+
+/* Must match the hardware: a wrong value deadlocks the MCU at boot. */
+&pwr {
+	power-supply = "smps-direct";
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		/* APX onboard bootloader - never written by APX */
+		bootloader_partition: partition@0 {
+			label = "bootloader";
+			reg = <0x00000000 DT_SIZE_K(128)>;
+			read-only;
+		};
+		/* APX firmware: the bootloader jumps to 0x08020000 */
+		app_partition: partition@20000 {
+			label = "apx-firmware";
+			reg = <0x00020000 DT_SIZE_K(896)>;
+		};
+	};
+};
+
+zephyr_udc0: &usbotg_fs {
+	pinctrl-0 = <&usb_otg_fs_dm_pa11 &usb_otg_fs_dp_pa12>;
+	pinctrl-names = "default";
+	status = "okay";
+
+	cdc_acm_uart0: cdc_acm_uart0 {
+		compatible = "zephyr,cdc-acm-uart";
+		label = "APX MAVLink";
+	};
+};

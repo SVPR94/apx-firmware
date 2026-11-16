@@ -1,0 +1,22 @@
+build/
+*.o
+*.a
+*.so
+*.elf
+*.bin
+*.hex
+__pycache__/
+*.pyc
+.cache/
+compile_commands.json
+toolchain/
+*.map
+dist/
+release-assets/
+release-dist/
+test-reports/
+site/
+
+# Zephyr west workspace (platforms/zephyr/setup_zephyr.sh)
+platforms/zephyr/workspace/
+graphify-out/

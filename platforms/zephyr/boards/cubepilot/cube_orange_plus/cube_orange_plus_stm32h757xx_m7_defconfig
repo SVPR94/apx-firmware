@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0
+CONFIG_GPIO=y
+CONFIG_ARM_MPU=y
+CONFIG_HW_STACK_PROTECTION=y
+# The Cortex-M4 core is not used and must not be started.
+CONFIG_STM32H7_BOOT_M4_AT_INIT=n
+# Link into the app partition after the 128 KB bootloader (0x08020000);
+# without this Zephyr links at 0x08000000 and the image cannot run when
+# the bootloader places it at 0x08020000.
+CONFIG_USE_DT_CODE_PARTITION=y

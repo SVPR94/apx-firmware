@@ -1,0 +1,6 @@
+board:
+  name: apx_h743_pro
+  full_name: APX H743 Pro
+  vendor: apx
+  socs:
+    - name: stm32h743xx

@@ -1,0 +1,114 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <world name="agricultural_field">
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <!-- Spray nozzle particle emitters on apx_hex (see its model.sdf). -->
+    <plugin filename="gz-sim-particle-emitter-system" name="gz::sim::systems::ParticleEmitter"/>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <!-- Same 300x300m sizing as apx_quad/world.sdf - see that
+                   file's comment. A 25kg-class hex has a larger turning/
+                   mission radius than the quad, but 300m is still ample
+                   margin. -->
+              <size>300 300</size>
+            </plane>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>300 300</size>
+            </plane>
+          </geometry>
+          <!-- Reuses apx_quad's own generated field texture asset (same
+               GZ_SIM_RESOURCE_PATH makes model://apx_quad/... resolvable
+               from here too) rather than duplicating the image file. -->
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_map>model://apx_quad/materials/textures/field_albedo.png</albedo_map>
+                <roughness>0.9</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <include>
+      <uri>apx_hex/model.sdf</uri>
+    </include>
+
+    <!-- Visual wind indicators -->
+    <include>
+      <name>windsock</name>
+      <uri>windsock/model.sdf</uri>
+      <pose>6 6 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>tree_1</name>
+      <uri>tree/model.sdf</uri>
+      <pose>18 14 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>tree_2</name>
+      <uri>tree/model.sdf</uri>
+      <pose>22 -16 0 0 0 0.8</pose>
+    </include>
+    <include>
+      <name>tree_3</name>
+      <uri>tree/model.sdf</uri>
+      <pose>-16 18 0 0 0 1.5</pose>
+    </include>
+    <include>
+      <name>tree_4</name>
+      <uri>tree/model.sdf</uri>
+      <pose>-20 -16 0 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>tree_5</name>
+      <uri>tree/model.sdf</uri>
+      <pose>28 0 0 0 0 0.4</pose>
+    </include>
+    <include>
+      <name>tree_6</name>
+      <uri>tree/model.sdf</uri>
+      <pose>-5 -26 0 0 0 2.9</pose>
+    </include>
+  </world>
+</sdf>

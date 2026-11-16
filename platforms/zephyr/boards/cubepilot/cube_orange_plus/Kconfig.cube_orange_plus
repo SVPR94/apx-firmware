@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# CubePilot Cube Orange+ (STM32H757). APX runs on the Cortex-M7 only.
+
+config BOARD_CUBE_ORANGE_PLUS
+	select SOC_STM32H757XX_M7 if BOARD_CUBE_ORANGE_PLUS_STM32H757XX_M7

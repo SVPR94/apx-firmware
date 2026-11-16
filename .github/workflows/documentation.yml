@@ -1,0 +1,99 @@
+name: APX Documentation Pipeline
+
+on:
+  push:
+    branches: [ "master", "main" ]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "scripts/**"
+      - "hal/**"
+      - "kernel/**"
+      - "drivers/**"
+      - "modules/**"
+      - "platforms/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/documentation.yml"
+  pull_request:
+    branches: [ "master", "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "documentation-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  build-and-validate-docs:
+    name: Build, Validate & Publish Documentation
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install System Build Tools & Clang
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build clang clang-tools
+
+      - name: Install MkDocs & Material Theme
+        run: |
+          pip install --upgrade pip
+          pip install mkdocs mkdocs-material
+
+      - name: Export Compilation Database
+        run: |
+          cmake -B build/doc_gen \
+                -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+                -DAPX_BOARD=sitl \
+                -DAPX_BUILD_SITL=ON \
+                -DAPX_BUILD_TESTS=ON \
+                -GNinja
+          cp build/doc_gen/compile_commands.json ./compile_commands.json
+          echo "✅ Exported compile_commands.json with $(grep -c '"file":' compile_commands.json) translation units"
+
+      - name: Execute Automated Documentation Suite
+        run: |
+          chmod +x ./scripts/generate-docs.sh ./scripts/validate-docs.py ./scripts/extract_cpp_api.py
+          ./scripts/generate-docs.sh
+
+      - name: Upload Documentation Site Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apx-documentation-site
+          path: site/
+          retention-days: 14
+
+      - name: Upload GitHub Pages Artifact
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    needs: build-and-validate-docs
+    runs-on: ubuntu-22.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        continue-on-error: true

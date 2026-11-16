@@ -1,0 +1,84 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 22,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "sitl",
+      "displayName": "APX SITL (Simulation - Native Linux)",
+      "description": "Build for SITL simulation on host Linux with Gazebo bridge and built-in physics",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/sitl",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "APX_BOARD": "sitl",
+        "APX_BUILD_SITL": "ON",
+        "APX_BUILD_TESTS": "ON"
+      }
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Linux Release (Companion / Embedded Linux)",
+      "description": "Optimized Linux release build for companion computers (Raspberry Pi, Jetson)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/linux-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "APX_BOARD": "linux",
+        "APX_BUILD_SITL": "OFF",
+        "APX_BUILD_TESTS": "OFF"
+      }
+    },
+    {
+      "name": "stm32h7",
+      "displayName": "STM32H7 Cross-Compile (Bare-Metal)",
+      "description": "Cross-compile for STM32H743 using arm-none-eabi-gcc; see platforms/stm32h7/README.md for status",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/stm32h7",
+      "toolchainFile": "${sourceDir}/platforms/stm32h7/toolchain-arm-none-eabi.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel",
+        "APX_BOARD": "stm32h7",
+        "APX_BOARD_TARGET": "apx_h743_v1",
+        "APX_BUILD_SITL": "OFF",
+        "APX_BUILD_TESTS": "OFF"
+      }
+    },
+    {
+      "name": "stm32h7-cube-orange-plus",
+      "displayName": "CubePilot Cube Orange+ Cross-Compile (Bare-Metal)",
+      "description": "Cross-compile for CubePilot Cube Orange+ (STM32H757) with 3 sensor lanes using arm-none-eabi-gcc",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/stm32h7_cube_orange_plus",
+      "toolchainFile": "${sourceDir}/platforms/stm32h7/toolchain-arm-none-eabi.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel",
+        "APX_BOARD": "stm32h7",
+        "APX_BOARD_TARGET": "cube_orange_plus",
+        "APX_BUILD_SITL": "OFF",
+        "APX_BUILD_TESTS": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "sitl",
+      "configurePreset": "sitl"
+    },
+    {
+      "name": "linux-release",
+      "configurePreset": "linux-release"
+    },
+    {
+      "name": "stm32h7",
+      "configurePreset": "stm32h7"
+    },
+    {
+      "name": "stm32h7-cube-orange-plus",
+      "configurePreset": "stm32h7-cube-orange-plus"
+    }
+  ]
+}

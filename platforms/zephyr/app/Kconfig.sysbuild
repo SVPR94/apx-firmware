@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: CC-BY-NC-4.0
+# Copyright (c) 2026 Savita Pawar <savitapawar0402@gmail.com>
+# Author: Savita Pawar (SVPR94)
+# Created: 2026
+# Sysbuild options for the APX flight firmware (west build --sysbuild).
+
+config APX_BOOTLOADER
+	bool "Build the APX bootloader and a combined bootloader + firmware image"
+	default y
+	help
+	  Builds platforms/zephyr/bootloader together with the firmware and
+	  packages build/<dir>/firmware/: bootloader, firmware, .apj and the
+	  combined image to flash once over SWD. Boards that keep a stock
+	  bootloader can still build it; flashing it is optional.
+
+source "share/sysbuild/Kconfig"

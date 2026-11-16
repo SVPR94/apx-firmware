@@ -1,0 +1,614 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="apx_hex">
+    <!-- EFT E610P-class agricultural hexacopter. Real datasheet specs used
+         directly (not scaled/guessed): wheelbase 1404mm (motor-to-opposite-
+         motor) -> arm length (center-to-motor) = 702mm; props 23-24in
+         (using 24in/0.3048m radius, the conservative/upper end); motor
+         X6215-class on 12S; 10L tank; frame weight 5kg; empty weight
+         (frame+motors+battery+avionics, no spray liquid) targeted at the
+         upper end of the datasheet's stated 8-16kg empty range (16kg) so
+         there's realistic payload margin left up to the 25kg MTOW spec
+         for the tank's ~10kg of liquid. See apx_gazebo_plugin's
+         <thrust_max_per_motor_n> below for the thrust/T:W reasoning.
+
+         Geometry deliberately simplified (no individual clamps, bolts,
+         fold-joints, or per-arm tip legs like the real frame has) per
+         the "avoid small parts" ask - this models the real silhouette
+         (hexa-X arms, central body/tank hull, twin diagonal landing
+         struts) and exact top-level dimensions, not every fastener. -->
+    <pose>0 0 0.65 0 0 0</pose>
+    <!-- Downward Lidar/Radar Altimeter Frame (pointing straight down towards ground) -->
+    <frame name='lidar_frame' attached_to='base_link'>
+      <pose>0 0 -0.12 0 1.5707963 0</pose>
+    </frame>
+    <link name="base_link">
+      <inertial>
+        <mass>14.5</mass>
+        <!-- Computed from this model's actual geometry: a 0.45x0.45x0.25m
+             body box plus 6 point masses (the motors, 0.25kg each, see
+             below) at their real 0.702m arm-radius positions, via the
+             standard box-inertia + parallel-axis-theorem sum (not a
+             guess) - see the session notes for the derivation. -->
+        <inertia>
+          <ixx>0.690</ixx>
+          <iyy>0.690</iyy>
+          <izz>1.229</izz>
+        </inertia>
+      </inertial>
+
+      <!-- Central body/tank hull (visual only - see body_collision below
+           for the matching collision box). Sized so its corners stay
+           well clear of the propeller disks: at 0.702m arm length and
+           0.30m prop radius, props reach to within 0.402m of center: a
+           0.45x0.45m box's corners sit at 0.318m, ~8.4cm clear. -->
+      <visual name="base_visual">
+        <geometry>
+          <box>
+            <size>0.45 0.45 0.22</size>
+          </box>
+        </geometry>
+        <material><ambient>0.85 0.85 0.87 1</ambient><diffuse>0.85 0.85 0.87 1</diffuse></material>
+      </visual>
+      <!-- Blue canopy, matching the real EFT 610P's blue top shell. -->
+      <visual name="canopy_visual">
+        <pose>0 0 0.14 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.32 0.32 0.10</size>
+          </box>
+        </geometry>
+        <material><ambient>0.10 0.25 0.65 1</ambient><diffuse>0.15 0.35 0.85 1</diffuse></material>
+      </visual>
+
+      <!-- Downward Altimeter Radar / Lidar Sensor Housing -->
+      <visual name="lidar_visual">
+        <pose>0 0 -0.11 0 0 0</pose>
+        <geometry><cylinder><radius>0.04</radius><length>0.02</length></cylinder></geometry>
+        <material><ambient>0.1 0.1 0.1 1</ambient><diffuse>0.15 0.15 0.15 1</diffuse></material>
+      </visual>
+
+      <!-- Downward GPU Lidar Altimeter to visualize radar sensor range (50° x 40°, 2m to 30m) -->
+      <sensor name='gpu_lidar' type='gpu_lidar'>
+        <pose relative_to='lidar_frame'>0 0 0 0 0 0</pose>
+        <topic>lidar</topic>
+        <update_rate>10</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>640</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.436332</min_angle>
+              <max_angle>0.436332</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>16</samples>
+              <resolution>0.01</resolution>
+              <min_angle>-0.349066</min_angle>
+              <max_angle>0.349066</max_angle>
+            </vertical>
+          </scan>
+          <range>
+            <min>2.0</min>
+            <max>30.0</max>
+            <resolution>0.01</resolution>
+          </range>
+        </ray>
+        <always_on>1</always_on>
+        <visualize>true</visualize>
+      </sensor>
+
+      <collision name="body_collision">
+        <geometry>
+          <box>
+            <size>0.45 0.45 0.22</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode><max_vel>20.0</max_vel><min_depth>0.001</min_depth></ode>
+          </contact>
+          <friction>
+            <ode><mu>1.0</mu><mu2>1.0</mu2></ode>
+          </friction>
+          <bounce><restitution_coefficient>0.0</restitution_coefficient><threshold>0.01</threshold></bounce>
+        </surface>
+      </collision>
+
+      <!-- Twin diagonal landing struts (matching the real frame's wide-
+           set tripod-style skid under the tank), not one per arm - see
+           this model's header comment on simplification. Right strut: -->
+      <visual name="leg_right_visual">
+        <pose>0 0.285 -0.3525 -2.60604 0 0</pose>
+        <geometry><box><size>0.05 0.05 0.529</size></box></geometry>
+        <material><ambient>0.05 0.05 0.05 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="foot_right_visual">
+        <pose>0 0.42 -0.58 0 0 0</pose>
+        <geometry><box><size>0.10 0.10 0.02</size></box></geometry>
+        <material><ambient>0.05 0.05 0.05 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="leg_left_visual">
+        <pose>0 -0.285 -0.3525 2.60604 0 0</pose>
+        <geometry><box><size>0.05 0.05 0.529</size></box></geometry>
+        <material><ambient>0.05 0.05 0.05 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="foot_left_visual">
+        <pose>0 -0.42 -0.58 0 0 0</pose>
+        <geometry><box><size>0.10 0.10 0.02</size></box></geometry>
+        <material><ambient>0.05 0.05 0.05 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+
+      <!-- Ground-contact collision, sized to the real foot spread (feet
+           at Y=+-0.42) plus margin in X so the vehicle rests stably
+           instead of tipping fore/aft on what's visually just a 2-strut
+           stance (same "collision plate wider than the visible legs"
+           simplification the quad model already uses). -->
+      <collision name="landing_skid_collision">
+        <pose>0 0 -0.58 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.5 1.0 0.04</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode><max_vel>20.0</max_vel><min_depth>0.001</min_depth></ode>
+          </contact>
+          <friction>
+            <ode><mu>1.0</mu><mu2>1.0</mu2></ode>
+          </friction>
+          <bounce><restitution_coefficient>0.0</restitution_coefficient><threshold>0.01</threshold></bounce>
+        </surface>
+      </collision>
+
+      <!-- Arms: body center -> each motor position, Hexa-X layout (60deg
+           spacing, no arm on the nose or tail - matches the real frame's
+           silhouette). Box center sits at half the arm radius with its
+           long axis yawed to point at the motor, same pattern
+           apx_quad/model.sdf uses. Motor numbering/angles/spin
+           directions match modules/flight_control/mixer/motor_geometry.hpp's
+           HEX_X_MOTORS table exactly (see that file's comment for the
+           derivation and the bug it fixed). -->
+      <visual name="arm1_visual"> <!-- -> motor1, 330deg -->
+        <pose>0.3040 -0.1755 0.05 0 0 5.759587</pose>
+        <geometry><box><size>0.702 0.08 0.06</size></box></geometry>
+        <material><ambient>0.12 0.12 0.15 1</ambient><diffuse>0.12 0.12 0.15 1</diffuse></material>
+      </visual>
+      <visual name="arm2_visual"> <!-- -> motor2, 210deg -->
+        <pose>-0.3040 -0.1755 0.05 0 0 3.665191</pose>
+        <geometry><box><size>0.702 0.08 0.06</size></box></geometry>
+        <material><ambient>0.12 0.12 0.15 1</ambient><diffuse>0.12 0.12 0.15 1</diffuse></material>
+      </visual>
+      <visual name="arm3_visual"> <!-- -> motor3, 30deg -->
+        <pose>0.3040 0.1755 0.05 0 0 0.523599</pose>
+        <geometry><box><size>0.702 0.08 0.06</size></box></geometry>
+        <material><ambient>0.12 0.12 0.15 1</ambient><diffuse>0.12 0.12 0.15 1</diffuse></material>
+      </visual>
+      <visual name="arm4_visual"> <!-- -> motor4, 150deg -->
+        <pose>-0.3040 0.1755 0.05 0 0 2.617994</pose>
+        <geometry><box><size>0.702 0.08 0.06</size></box></geometry>
+        <material><ambient>0.12 0.12 0.15 1</ambient><diffuse>0.12 0.12 0.15 1</diffuse></material>
+      </visual>
+      <visual name="arm5_visual"> <!-- -> motor5, 270deg -->
+        <pose>0.0 -0.3510 0.05 0 0 4.712389</pose>
+        <geometry><box><size>0.702 0.08 0.06</size></box></geometry>
+        <material><ambient>0.12 0.12 0.15 1</ambient><diffuse>0.12 0.12 0.15 1</diffuse></material>
+      </visual>
+      <visual name="arm6_visual"> <!-- -> motor6, 90deg -->
+        <pose>0.0 0.3510 0.05 0 0 1.570796</pose>
+        <geometry><box><size>0.702 0.08 0.06</size></box></geometry>
+        <material><ambient>0.12 0.12 0.15 1</ambient><diffuse>0.12 0.12 0.15 1</diffuse></material>
+      </visual>
+
+      <!-- Spray boom + nozzles (visual only). Each nozzle is a particle
+           emitter pointing straight down, off at start; apx_gazebo_plugin
+           switches them on/off and scales their rate from APX's sprayer
+           pump output (see the <spray> block in the plugin below). -->
+      <visual name="spray_boom_visual">
+        <pose>0 0 -0.40 1.570796 0 0</pose>
+        <geometry><cylinder><radius>0.015</radius><length>1.80</length></cylinder></geometry>
+        <material><ambient>0.20 0.20 0.22 1</ambient><diffuse>0.25 0.25 0.28 1</diffuse></material>
+      </visual>
+      <visual name="nozzle1_visual">
+        <pose>0 -0.80 -0.43 0 0 0</pose>
+        <geometry><cylinder><radius>0.02</radius><length>0.05</length></cylinder></geometry>
+        <material><ambient>0.9 0.45 0.05 1</ambient><diffuse>0.95 0.5 0.1 1</diffuse></material>
+      </visual>
+      <particle_emitter name="nozzle1" type="box">
+        <pose>0 -0.80 -0.46 0 1.570796 0</pose>
+        <emitting>false</emitting>
+        <!-- box spread: local Y = across the boom, local Z = fore/aft -->
+        <size>0.02 0.30 0.08</size>
+        <particle_size>0.035 0.035 0.035</particle_size>
+        <lifetime>0.55</lifetime>
+        <rate>0</rate>
+        <min_velocity>3.0</min_velocity>
+        <max_velocity>5.0</max_velocity>
+        <scale_rate>0.6</scale_rate>
+        <color_start>0.88 0.94 1.0 0.45</color_start>
+        <color_end>0.88 0.94 1.0 0.0</color_end>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <pbr><metal><albedo_map>model://apx_hex/materials/textures/spray_droplet.png</albedo_map></metal></pbr>
+        </material>
+        <topic>/apx/spray/nozzle1</topic>
+      </particle_emitter>
+      <visual name="nozzle2_visual">
+        <pose>0 -0.30 -0.43 0 0 0</pose>
+        <geometry><cylinder><radius>0.02</radius><length>0.05</length></cylinder></geometry>
+        <material><ambient>0.9 0.45 0.05 1</ambient><diffuse>0.95 0.5 0.1 1</diffuse></material>
+      </visual>
+      <particle_emitter name="nozzle2" type="box">
+        <pose>0 -0.30 -0.46 0 1.570796 0</pose>
+        <emitting>false</emitting>
+        <!-- box spread: local Y = across the boom, local Z = fore/aft -->
+        <size>0.02 0.30 0.08</size>
+        <particle_size>0.035 0.035 0.035</particle_size>
+        <lifetime>0.55</lifetime>
+        <rate>0</rate>
+        <min_velocity>3.0</min_velocity>
+        <max_velocity>5.0</max_velocity>
+        <scale_rate>0.6</scale_rate>
+        <color_start>0.88 0.94 1.0 0.45</color_start>
+        <color_end>0.88 0.94 1.0 0.0</color_end>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <pbr><metal><albedo_map>model://apx_hex/materials/textures/spray_droplet.png</albedo_map></metal></pbr>
+        </material>
+        <topic>/apx/spray/nozzle2</topic>
+      </particle_emitter>
+      <visual name="nozzle3_visual">
+        <pose>0 0.30 -0.43 0 0 0</pose>
+        <geometry><cylinder><radius>0.02</radius><length>0.05</length></cylinder></geometry>
+        <material><ambient>0.9 0.45 0.05 1</ambient><diffuse>0.95 0.5 0.1 1</diffuse></material>
+      </visual>
+      <particle_emitter name="nozzle3" type="box">
+        <pose>0 0.30 -0.46 0 1.570796 0</pose>
+        <emitting>false</emitting>
+        <!-- box spread: local Y = across the boom, local Z = fore/aft -->
+        <size>0.02 0.30 0.08</size>
+        <particle_size>0.035 0.035 0.035</particle_size>
+        <lifetime>0.55</lifetime>
+        <rate>0</rate>
+        <min_velocity>3.0</min_velocity>
+        <max_velocity>5.0</max_velocity>
+        <scale_rate>0.6</scale_rate>
+        <color_start>0.88 0.94 1.0 0.45</color_start>
+        <color_end>0.88 0.94 1.0 0.0</color_end>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <pbr><metal><albedo_map>model://apx_hex/materials/textures/spray_droplet.png</albedo_map></metal></pbr>
+        </material>
+        <topic>/apx/spray/nozzle3</topic>
+      </particle_emitter>
+      <visual name="nozzle4_visual">
+        <pose>0 0.80 -0.43 0 0 0</pose>
+        <geometry><cylinder><radius>0.02</radius><length>0.05</length></cylinder></geometry>
+        <material><ambient>0.9 0.45 0.05 1</ambient><diffuse>0.95 0.5 0.1 1</diffuse></material>
+      </visual>
+      <particle_emitter name="nozzle4" type="box">
+        <pose>0 0.80 -0.46 0 1.570796 0</pose>
+        <emitting>false</emitting>
+        <!-- box spread: local Y = across the boom, local Z = fore/aft -->
+        <size>0.02 0.30 0.08</size>
+        <particle_size>0.035 0.035 0.035</particle_size>
+        <lifetime>0.55</lifetime>
+        <rate>0</rate>
+        <min_velocity>3.0</min_velocity>
+        <max_velocity>5.0</max_velocity>
+        <scale_rate>0.6</scale_rate>
+        <color_start>0.88 0.94 1.0 0.45</color_start>
+        <color_end>0.88 0.94 1.0 0.0</color_end>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <pbr><metal><albedo_map>model://apx_hex/materials/textures/spray_droplet.png</albedo_map></metal></pbr>
+        </material>
+        <topic>/apx/spray/nozzle4</topic>
+      </particle_emitter>
+    </link>
+
+    <!-- Motors: X6215-class, 24in props (0.3048m radius; mesh scaled up
+         from apx_quad's own ~0.1295m-radius prop_cw/ccw.dae by 2.3166x
+         rather than a new asset - shared across models via the common
+         GZ_SIM_RESOURCE_PATH, see sim_vehicle.py). Which mixer output
+         drives which motor link is set by the <motor> order in the plugin
+         block at the end of this file. -->
+    <link name="motor1">
+      <pose>0.6079 -0.3510 0.05 0 0 0</pose>
+      <inertial>
+        <mass>0.25</mass>
+        <inertia><ixx>0.0004</ixx><iyy>0.0004</iyy><izz>0.0006</izz></inertia>
+      </inertial>
+      <visual name="motor1_housing_visual">
+        <geometry><cylinder><radius>0.04</radius><length>0.05</length></cylinder></geometry>
+        <material><ambient>0.8 0.1 0.1 1</ambient><diffuse>0.8 0.1 0.1 1</diffuse></material>
+      </visual>
+      <visual name="motor1_visual">
+        <pose>0 0 0.03 0 0 0</pose>
+        <geometry><mesh><scale>2.3166 2.3166 2.3166</scale><uri>model://apx_quad/meshes/prop_ccw.dae</uri></mesh></geometry>
+      </visual>
+      <collision name="motor1_collision">
+        <geometry><sphere><radius>0.05</radius></sphere></geometry>
+        <surface>
+          <contact><ode><max_vel>20.0</max_vel><min_depth>0.001</min_depth></ode></contact>
+          <friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction>
+          <bounce><restitution_coefficient>0.0</restitution_coefficient><threshold>0.01</threshold></bounce>
+        </surface>
+      </collision>
+    </link>
+    <joint name="joint1" type="revolute">
+      <parent>base_link</parent>
+      <child>motor1</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <!-- Low effort limit, same reasoning as apx_quad/model.sdf's
+             joint1-4: lets JointVelocityCmd reach full commanded RPM
+             without instantly yanking a large reaction torque into
+             base_link on every mixer-output change. -->
+        <limit>
+          <lower>-1e16</lower>
+          <upper>1e16</upper>
+          <effort>0.01</effort>
+          <velocity>1000</velocity>
+        </limit>
+        <dynamics><damping>0.0</damping><friction>0.0</friction></dynamics>
+      </axis>
+    </joint>
+
+    <link name="motor2">
+      <pose>-0.6079 -0.3510 0.05 0 0 0</pose>
+      <inertial>
+        <mass>0.25</mass>
+        <inertia><ixx>0.0004</ixx><iyy>0.0004</iyy><izz>0.0006</izz></inertia>
+      </inertial>
+      <visual name="motor2_housing_visual">
+        <geometry><cylinder><radius>0.04</radius><length>0.05</length></cylinder></geometry>
+        <material><ambient>0.15 0.15 0.15 1</ambient><diffuse>0.15 0.15 0.15 1</diffuse></material>
+      </visual>
+      <visual name="motor2_visual">
+        <pose>0 0 0.03 0 0 0</pose>
+        <geometry><mesh><scale>2.3166 2.3166 2.3166</scale><uri>model://apx_quad/meshes/prop_cw.dae</uri></mesh></geometry>
+      </visual>
+      <collision name="motor2_collision">
+        <geometry><sphere><radius>0.05</radius></sphere></geometry>
+        <surface>
+          <contact><ode><max_vel>20.0</max_vel><min_depth>0.001</min_depth></ode></contact>
+          <friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction>
+          <bounce><restitution_coefficient>0.0</restitution_coefficient><threshold>0.01</threshold></bounce>
+        </surface>
+      </collision>
+    </link>
+    <joint name="joint2" type="revolute">
+      <parent>base_link</parent>
+      <child>motor2</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1e16</lower>
+          <upper>1e16</upper>
+          <effort>0.01</effort>
+          <velocity>1000</velocity>
+        </limit>
+        <dynamics><damping>0.0</damping><friction>0.0</friction></dynamics>
+      </axis>
+    </joint>
+
+    <link name="motor3">
+      <pose>0.6079 0.3510 0.05 0 0 0</pose>
+      <inertial>
+        <mass>0.25</mass>
+        <inertia><ixx>0.0004</ixx><iyy>0.0004</iyy><izz>0.0006</izz></inertia>
+      </inertial>
+      <visual name="motor3_housing_visual">
+        <geometry><cylinder><radius>0.04</radius><length>0.05</length></cylinder></geometry>
+        <material><ambient>0.8 0.1 0.1 1</ambient><diffuse>0.8 0.1 0.1 1</diffuse></material>
+      </visual>
+      <visual name="motor3_visual">
+        <pose>0 0 0.03 0 0 0</pose>
+        <geometry><mesh><scale>2.3166 2.3166 2.3166</scale><uri>model://apx_quad/meshes/prop_cw.dae</uri></mesh></geometry>
+      </visual>
+      <collision name="motor3_collision">
+        <geometry><sphere><radius>0.05</radius></sphere></geometry>
+        <surface>
+          <contact><ode><max_vel>20.0</max_vel><min_depth>0.001</min_depth></ode></contact>
+          <friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction>
+          <bounce><restitution_coefficient>0.0</restitution_coefficient><threshold>0.01</threshold></bounce>
+        </surface>
+      </collision>
+    </link>
+    <joint name="joint3" type="revolute">
+      <parent>base_link</parent>
+      <child>motor3</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1e16</lower>
+          <upper>1e16</upper>
+          <effort>0.01</effort>
+          <velocity>1000</velocity>
+        </limit>
+        <dynamics><damping>0.0</damping><friction>0.0</friction></dynamics>
+      </axis>
+    </joint>
+
+    <link name="motor4">
+      <pose>-0.6079 0.3510 0.05 0 0 0</pose>
+      <inertial>
+        <mass>0.25</mass>
+        <inertia><ixx>0.0004</ixx><iyy>0.0004</iyy><izz>0.0006</izz></inertia>
+      </inertial>
+      <visual name="motor4_housing_visual">
+        <geometry><cylinder><radius>0.04</radius><length>0.05</length></cylinder></geometry>
+        <material><ambient>0.15 0.15 0.15 1</ambient><diffuse>0.15 0.15 0.15 1</diffuse></material>
+      </visual>
+      <visual name="motor4_visual">
+        <pose>0 0 0.03 0 0 0</pose>
+        <geometry><mesh><scale>2.3166 2.3166 2.3166</scale><uri>model://apx_quad/meshes/prop_ccw.dae</uri></mesh></geometry>
+      </visual>
+      <collision name="motor4_collision">
+        <geometry><sphere><radius>0.05</radius></sphere></geometry>
+        <surface>
+          <contact><ode><max_vel>20.0</max_vel><min_depth>0.001</min_depth></ode></contact>
+          <friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction>
+          <bounce><restitution_coefficient>0.0</restitution_coefficient><threshold>0.01</threshold></bounce>
+        </surface>
+      </collision>
+    </link>
+    <joint name="joint4" type="revolute">
+      <parent>base_link</parent>
+      <child>motor4</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1e16</lower>
+          <upper>1e16</upper>
+          <effort>0.01</effort>
+          <velocity>1000</velocity>
+        </limit>
+        <dynamics><damping>0.0</damping><friction>0.0</friction></dynamics>
+      </axis>
+    </joint>
+
+    <link name="motor5">
+      <pose>0.0 -0.7020 0.05 0 0 0</pose>
+      <inertial>
+        <mass>0.25</mass>
+        <inertia><ixx>0.0004</ixx><iyy>0.0004</iyy><izz>0.0006</izz></inertia>
+      </inertial>
+      <visual name="motor5_housing_visual">
+        <geometry><cylinder><radius>0.04</radius><length>0.05</length></cylinder></geometry>
+        <material><ambient>0.8 0.1 0.1 1</ambient><diffuse>0.8 0.1 0.1 1</diffuse></material>
+      </visual>
+      <visual name="motor5_visual">
+        <pose>0 0 0.03 0 0 0</pose>
+        <geometry><mesh><scale>2.3166 2.3166 2.3166</scale><uri>model://apx_quad/meshes/prop_cw.dae</uri></mesh></geometry>
+      </visual>
+      <collision name="motor5_collision">
+        <geometry><sphere><radius>0.05</radius></sphere></geometry>
+        <surface>
+          <contact><ode><max_vel>20.0</max_vel><min_depth>0.001</min_depth></ode></contact>
+          <friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction>
+          <bounce><restitution_coefficient>0.0</restitution_coefficient><threshold>0.01</threshold></bounce>
+        </surface>
+      </collision>
+    </link>
+    <joint name="joint5" type="revolute">
+      <parent>base_link</parent>
+      <child>motor5</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1e16</lower>
+          <upper>1e16</upper>
+          <effort>0.01</effort>
+          <velocity>1000</velocity>
+        </limit>
+        <dynamics><damping>0.0</damping><friction>0.0</friction></dynamics>
+      </axis>
+    </joint>
+
+    <link name="motor6">
+      <pose>0.0 0.7020 0.05 0 0 0</pose>
+      <inertial>
+        <mass>0.25</mass>
+        <inertia><ixx>0.0004</ixx><iyy>0.0004</iyy><izz>0.0006</izz></inertia>
+      </inertial>
+      <visual name="motor6_housing_visual">
+        <geometry><cylinder><radius>0.04</radius><length>0.05</length></cylinder></geometry>
+        <material><ambient>0.15 0.15 0.15 1</ambient><diffuse>0.15 0.15 0.15 1</diffuse></material>
+      </visual>
+      <visual name="motor6_visual">
+        <pose>0 0 0.03 0 0 0</pose>
+        <geometry><mesh><scale>2.3166 2.3166 2.3166</scale><uri>model://apx_quad/meshes/prop_ccw.dae</uri></mesh></geometry>
+      </visual>
+      <collision name="motor6_collision">
+        <geometry><sphere><radius>0.05</radius></sphere></geometry>
+        <surface>
+          <contact><ode><max_vel>20.0</max_vel><min_depth>0.001</min_depth></ode></contact>
+          <friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction>
+          <bounce><restitution_coefficient>0.0</restitution_coefficient><threshold>0.01</threshold></bounce>
+        </surface>
+      </collision>
+    </link>
+    <joint name="joint6" type="revolute">
+      <parent>base_link</parent>
+      <child>motor6</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1e16</lower>
+          <upper>1e16</upper>
+          <effort>0.01</effort>
+          <velocity>1000</velocity>
+        </limit>
+        <dynamics><damping>0.0</damping><friction>0.0</friction></dynamics>
+      </axis>
+    </joint>
+
+    <plugin name="apx_gazebo_plugin" filename="apx_gazebo_plugin.so">
+      <!-- 6 motors * 52N max = 312N; empty flying mass 16kg * 9.81 =
+           156.96N -> hover throttle = sqrt(156.96/312) ~= 0.71 (matches
+           the quad's ~0.70 hover-throttle design point). At 25kg MTOW
+           (245.25N weight) this is a ~1.27:1 T:W - enough margin to
+           hover and fly gently fully loaded, consistent with a real
+           spray platform that isn't meant to fly aggressively at max
+           payload. -->
+      <thrust_max_per_motor_n>52.0</thrust_max_per_motor_n>
+      <!-- Body drag Cd*A (m^2) against the wind (APX_SIM_WIND). An estimate
+           for a ~1.5 m agri hex with tank, not a measurement: at 10 m/s it
+           gives ~18 N, ~7 deg of lean at 14.5 kg. Replace with a value
+           identified from flight logs. -->
+      <drag_area_m2>0.3</drag_area_m2>
+      <!-- Spray visual: servo output <pump_channel> (1-based, APX's
+           SPRAY_PUMP_CH) drives the nozzle emitters; particle rate per
+           nozzle = <max_rate> x pump fraction. -->
+      <spray>
+        <pump_channel>9</pump_channel>
+        <max_rate>600</max_rate>
+        <topic>/apx/spray/nozzle1</topic>
+        <topic>/apx/spray/nozzle2</topic>
+        <topic>/apx/spray/nozzle3</topic>
+        <topic>/apx/spray/nozzle4</topic>
+      </spray>
+      <!-- <motor> order = mixer output order (HEX_X_MOTORS in
+           motor_geometry.hpp): out1 front-right, out2 rear-left,
+           out3 front-left, out4 rear-right, out5 right, out6 left, with
+           direction = -yaw_factor. The motor2/motor4 links sit at
+           rear-right/rear-left, so outputs 2 and 4 bind to motor4 and
+           motor2 respectively. (They were bound the other way round, which
+           made every yaw command also roll the vehicle and weakened roll
+           authority - a sideways weave after each heading change.) -->
+      <motor>
+        <link>motor1</link>
+        <joint>joint1</joint>
+        <direction>-1</direction>
+      </motor>
+      <motor>
+        <link>motor4</link>
+        <joint>joint4</joint>
+        <direction>1</direction>
+      </motor>
+      <motor>
+        <link>motor3</link>
+        <joint>joint3</joint>
+        <direction>1</direction>
+      </motor>
+      <motor>
+        <link>motor2</link>
+        <joint>joint2</joint>
+        <direction>-1</direction>
+      </motor>
+      <motor>
+        <link>motor5</link>
+        <joint>joint5</joint>
+        <direction>1</direction>
+      </motor>
+      <motor>
+        <link>motor6</link>
+        <joint>joint6</joint>
+        <direction>-1</direction>
+      </motor>
+    </plugin>
+  </model>
+</sdf>

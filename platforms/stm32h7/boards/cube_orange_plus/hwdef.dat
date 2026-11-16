@@ -1,0 +1,95 @@
+# hw definition file for CubePilot Cube Orange+ flight controller
+# MCU class and specific type
+MCU STM32H7xx STM32H757xx
+
+# crystal frequency
+OSCILLATOR_HZ 24000000
+
+undef USB_STRING_PRODUCT
+undef USB_STRING_MANUFACTURER
+undef APJ_BOARD_ID
+undef USB_PRODUCT
+
+# USB setup
+USB_PRODUCT 0x0483
+USB_STRING_MANUFACTURER "CubePilot"
+USB_STRING_PRODUCT "CubeOrangePlus"
+
+# board ID for APX bootloader (CubeOrange+ = 1063)
+APJ_BOARD_ID 1063
+
+FLASH_SIZE_KB 2048
+
+# Bootloader runs from 0x08000000 (128 KB reserved)
+FLASH_RESERVE_START_KB 0
+FLASH_BOOTLOADER_LOAD_KB 128
+
+env OPTIMIZE -Os
+
+# Status LEDs
+PB3 LED_ACTIVITY OUTPUT OPENDRAIN HIGH # red
+PE12 LED_BOOTLOADER OUTPUT OPENDRAIN HIGH # amber FMU LED
+define HAL_LED_ON 0
+
+# Power rail control
+PE3 SENSORS_EN OUTPUT HIGH              # Sensor 3.3V rail (high = on)
+PA8 PERIPH_5V_EN OUTPUT OPENDRAIN LOW   # Periph 5V rail (low = on)
+
+# Serial UART configuration
+SERIAL_ORDER OTG1 USART2 USART3 UART7 USART6
+
+# TELEM1
+PD5 USART2_TX USART2
+PD6 USART2_RX USART2
+
+# TELEM2
+PD8 USART3_TX USART3
+PD9 USART3_RX USART3
+
+# GPS1 (UART7)
+PE7 UART7_RX UART7
+PE8 UART7_TX UART7
+
+# IOMCU co-processor link (USART6)
+PG14 USART6_TX USART6
+PG9  USART6_RX USART6
+
+# USB OTG FS
+PA11 OTG_FS_DM OTG1
+PA12 OTG_FS_DP OTG1
+
+# SWD debug
+PA13 JTMS-SWDIO SWD
+PA14 JTCK-SWCLK SWD
+
+# --------------------------------------------------------------------------
+# 3 Sensor Lanes (SPI buses and Chip Selects)
+# --------------------------------------------------------------------------
+# Lane 1: Primary IMU (ICM-42688-P) on SPI1
+PE4  ICM42688_CS CS
+PC2  ICM42688_EXT_CS CS
+
+# Lane 2: Secondary IMU (ICM-40605/ICM-42670) + Baro 1 on SPI4
+PC13 ICM40605_EXT_CS CS
+PD7  BARO_EXT_CS CS
+
+# Lane 3: Backup IMU (ICM-20649) + Baro 2 on SPI2
+PC15 ICM20649_CS CS
+PC14 BARO_CS CS
+
+# Storage & peripherals
+PD10 FRAM_CS CS
+PD2  SDCARD_CS CS
+
+# --------------------------------------------------------------------------
+# AUX PWM/DShot Motor Outputs (driven directly by STM32H757)
+# --------------------------------------------------------------------------
+PE9  TIM1_CH1 TIM1 PWM(1)  # AUX 1
+PE11 TIM1_CH2 TIM1 PWM(2)  # AUX 2
+PE13 TIM1_CH3 TIM1 PWM(3)  # AUX 3
+PE14 TIM1_CH4 TIM1 PWM(4)  # AUX 4
+PD13 TIM4_CH2 TIM4 PWM(5)  # AUX 5
+PD14 TIM4_CH3 TIM4 PWM(6)  # AUX 6
+
+define HAL_USE_EMPTY_STORAGE 1
+define HAL_STORAGE_SIZE 32768

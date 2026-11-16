@@ -1,0 +1,21 @@
+site_name: APX Flight Controller
+site_description: Documentation for the APX Flight Stack
+theme:
+  name: material
+  palette:
+    primary: blue
+    accent: light blue
+  features:
+    - navigation.tabs
+    - navigation.sections
+
+nav:
+  - Home: index.md
+  - Getting Started: getting_started.md
+  - Architecture: architecture.md
+  - Guides:
+    - Calibration: calibration_guide.md
+    - Simulation: simulation_guide.md
+    - Simulated Sensors & Wind: simulated_sensors.md
+  - Development:
+    - Driver Guide: driver_guide.md

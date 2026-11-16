@@ -1,0 +1,83 @@
+# APX default parameter file: apx_h743_v1 (generic STM32H743 quad-X flight
+# controller)
+#
+# Format (APX's own; see platforms/stm32h7/README.md): one `NAME=value`
+# assignment per line. `#` starts a full-line comment. This is
+# deliberately NOT the comma-separated `NAME,VALUE` layout other
+# autopilot ecosystems' .parm files use -- APX's file format is its own,
+# even though many of the parameter *names* below are shared MAVLink
+# parameter-protocol conventions for GCS interoperability (APX Flight Manager
+# etc. expect these exact names), and default *values* are ordinary
+# physical/tuning numbers.
+#
+# Every NAME below is registered today in
+# modules/params/param_manager.cpp's ParamManager::init_defaults() --
+# this file only overrides values ParamManager already knows about.
+# Parameters commented out with "NOT YET REGISTERED" describe params
+# this board's wiring implies (serial port routing, RC channel mapping)
+# but that ParamManager does not define yet; they are listed here as
+# documentation of intended values for whoever adds them, not as things
+# this file currently sets.
+
+# --- Frame -----------------------------------------------------------
+FRAME_CLASS=1      # 1 = Quad (see ParamManager comment: "1=Quad")
+FRAME_TYPE=1        # 1 = X
+
+# --- System / GCS -----------------------------------------------------
+SYSID_THISMAV=1
+SYSID_MYGCS=255
+
+# --- Arming / failsafe --------------------------------------------------
+ARMING_CHECK=1
+FS_THR_ENABLE=1
+FS_GCS_ENABLE=1
+
+# --- Battery monitor: INA226 on I2C1, see board_config.hpp BATT_* ------
+BATT_MONITOR=4        # 4 = analog/I2C voltage+current monitor (matches ParamManager default)
+BATT_CAPACITY=5000
+BATT_LOW_VOLT=21.0     # 6S pack: 3.5 V/cell
+BATT_CRT_VOLT=19.8     # 6S pack: 3.3 V/cell
+
+# --- Pilot / navigation defaults (unmodified from ParamManager) --------
+PILOT_THR_FILT=0.0
+WPNAV_SPEED=250.0   # ParamManager's default as of this session (250, not 500 -
+                     # see its own comment: 5 m/s wasn't verified stable for
+                     # GUIDED/AUTO on the current airframe tuning)
+WPNAV_RADIUS=200.0
+RTL_ALT=1500.0
+
+# --- Rate controller PID (unmodified from ParamManager defaults) -------
+ATC_RAT_RLL_P=0.135
+ATC_RAT_RLL_I=0.135
+ATC_RAT_RLL_D=0.0036
+ATC_RAT_PIT_P=0.135
+ATC_RAT_PIT_I=0.135
+ATC_RAT_PIT_D=0.0036
+ATC_RAT_YAW_P=0.180
+ATC_RAT_YAW_I=0.018
+ATC_RAT_YAW_D=0.0000
+
+# --- Estimator ----------------------------------------------------------
+EK3_ENABLE=1
+
+# --- RC channel mapping (matches this board's default RC wiring) -------
+# RCMAP_*/RC1_MIN/MAX/TRIM../RC8_* were registered in ParamManager this
+# session - real overrides now, not a TODO. Values below match
+# ParamManager's own defaults (roll=ch1/pitch=ch2/throttle=ch3/yaw=ch4,
+# 1100/1500/1900us), listed explicitly so this file documents the
+# board's actual intended mapping rather than relying on silently
+# inheriting whatever ParamManager's defaults happen to be.
+RCMAP_ROLL=1
+RCMAP_PITCH=2
+RCMAP_THROTTLE=3
+RCMAP_YAW=4
+
+# --- TODO: not yet registered in ParamManager ---------------------------
+# Serial port routing (board_config.hpp GPS_UART_ID/TELEM_UART_ID/
+# RC_UART_ID) - ParamManager::init_defaults() does not define SERIAL*_*
+# parameters yet -- add them there first, then uncomment/adjust here.
+# SERIAL1_PROTOCOL=5   # GPS, USART1 (GPS_UART_ID), 115200 baud
+# SERIAL1_BAUD=115200
+# SERIAL2_PROTOCOL=2   # MAVLink telemetry, USART2 (TELEM_UART_ID), 57600 baud
+# SERIAL2_BAUD=57600
+# SERIAL3_PROTOCOL=23  # RC input (SBUS), USART3 (RC_UART_ID)

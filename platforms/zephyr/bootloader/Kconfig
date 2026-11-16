@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: CC-BY-NC-4.0
+# Copyright (c) 2026 Savita Pawar <savitapawar0402@gmail.com>
+# Author: Savita Pawar (SVPR94)
+# Created: 2026
+mainmenu "APX bootloader"
+
+config APX_BL_BOOT_DELAY_MS
+	int "Time to wait for a ground station after power-up (ms)"
+	default 2000
+	help
+	  With a valid application, the bootloader listens this long after a
+	  normal reset before starting it. Long enough for the USB device to
+	  enumerate and a ground station to send the first command.
+
+config APX_BL_STAY_TIMEOUT_S
+	int "Time to wait after a reboot-to-bootloader request (s)"
+	default 30
+
+config APX_BL_IDLE_TIMEOUT_S
+	int "Start the application after this long without commands (s)"
+	default 30
+	help
+	  Applies once a ground station has talked to the bootloader and the
+	  application is valid.
+
+config APX_BL_UART_BAUD
+	int "Baud rate when the bootloader link is a UART"
+	default 115200
+	help
+	  Ignored for USB CDC links. Ground-station uploaders use 115200 for
+	  the bootloader by default.
+
+source "Kconfig.zephyr"

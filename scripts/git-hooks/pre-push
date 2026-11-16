@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# APX Git Pre-Push Hook
+# Automatically validates documentation links, Mermaid diagrams, navigation,
+# and compilation database before permitting code push.
+#
+# To install:
+#   ln -sf ../../scripts/git-hooks/pre-push .git/hooks/pre-push
+#   chmod +x .git/hooks/pre-push
+# ==============================================================================
+
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "${REPO_ROOT}"
+
+echo "🔍 [APX Pre-Push] Validating documentation links and integrity..."
+
+if [ -f "scripts/validate-docs.py" ]; then
+    python3 scripts/validate-docs.py
+    echo "✅ [APX Pre-Push] Documentation check passed."
+else
+    echo "⚠️  [APX Pre-Push] scripts/validate-docs.py not found, skipping."
+fi
+
+exit 0

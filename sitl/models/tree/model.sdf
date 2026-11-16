@@ -1,0 +1,244 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <model name="tree">
+    <static>false</static>
+
+    <!-- Trunk anchored to world ground -->
+    <link name="trunk">
+      <inertial>
+        <mass>300.0</mass>
+        <inertia>
+          <ixx>200.0</ixx>
+          <iyy>200.0</iyy>
+          <izz>25.0</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+
+      <!-- Flared base/roots -->
+      <visual name="roots_visual">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.48</radius>
+            <length>0.30</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.25 0.16 0.08 1.0</ambient>
+          <diffuse>0.32 0.20 0.11 1.0</diffuse>
+          <pbr>
+            <metal>
+              <roughness>0.9</roughness>
+              <metalness>0.0</metalness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <!-- Main tree trunk (4.5m tall) -->
+      <visual name="trunk_visual">
+        <pose>0 0 2.25 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.24</radius>
+            <length>4.5</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.28 0.18 0.10 1.0</ambient>
+          <diffuse>0.38 0.24 0.14 1.0</diffuse>
+          <pbr>
+            <metal>
+              <roughness>0.9</roughness>
+              <metalness>0.0</metalness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <collision name="trunk_collision">
+        <pose>0 0 2.25 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.30</radius>
+            <length>4.5</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="tree_ground_mount" type="fixed">
+      <parent>world</parent>
+      <child>trunk</child>
+    </joint>
+
+    <!-- Intermediate yaw pivot link (aligns sway axis with downwind bearing) -->
+    <link name="sway_yaw_link">
+      <!-- Posed by apx_gazebo_plugin at 30 Hz; without gravity it holds
+           that pose between updates instead of sagging. -->
+      <gravity>false</gravity>
+      <pose>0 0 3.2 0 0 0</pose>
+      <inertial>
+        <mass>2.0</mass>
+        <inertia>
+          <ixx>0.05</ixx>
+          <iyy>0.05</iyy>
+          <izz>0.05</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <joint name="tree_yaw_joint" type="revolute">
+      <parent>trunk</parent>
+      <child>sway_yaw_link</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3.14159265</lower>
+          <upper>3.14159265</upper>
+        </limit>
+      </axis>
+    </joint>
+
+    <!-- Foliage canopy link: sways and oscillates in the wind -->
+    <link name="canopy">
+      <!-- Posed by apx_gazebo_plugin at 30 Hz; without gravity it holds
+           that pose between updates instead of sagging. -->
+      <gravity>false</gravity>
+      <pose>0 0 3.2 0 0 0</pose>
+      <inertial>
+        <mass>80.0</mass>
+        <pose>0 0 1.8 0 0 0</pose>
+        <inertia>
+          <ixx>65.0</ixx>
+          <iyy>65.0</iyy>
+          <izz>45.0</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+
+      <!-- Main center canopy sphere -->
+      <visual name="canopy_center">
+        <pose>0 0 1.8 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>2.1</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <ambient>0.12 0.35 0.09 1.0</ambient>
+          <diffuse>0.18 0.48 0.14 1.0</diffuse>
+          <pbr>
+            <metal>
+              <roughness>0.9</roughness>
+              <metalness>0.0</metalness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <!-- Upper foliage crown -->
+      <visual name="canopy_top">
+        <pose>0 0 3.1 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>1.5</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <ambient>0.15 0.40 0.12 1.0</ambient>
+          <diffuse>0.22 0.55 0.18 1.0</diffuse>
+          <pbr>
+            <metal>
+              <roughness>0.9</roughness>
+              <metalness>0.0</metalness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <!-- Side foliage clusters (+X, -X, +Y, -Y) for organic volume -->
+      <visual name="canopy_cluster_px">
+        <pose>1.1 0 1.1 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>1.4</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <ambient>0.11 0.32 0.08 1.0</ambient>
+          <diffuse>0.16 0.44 0.12 1.0</diffuse>
+        </material>
+      </visual>
+
+      <visual name="canopy_cluster_nx">
+        <pose>-1.1 0 1.1 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>1.4</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <ambient>0.11 0.32 0.08 1.0</ambient>
+          <diffuse>0.16 0.44 0.12 1.0</diffuse>
+        </material>
+      </visual>
+
+      <visual name="canopy_cluster_py">
+        <pose>0 1.1 1.1 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>1.4</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <ambient>0.13 0.36 0.10 1.0</ambient>
+          <diffuse>0.19 0.50 0.15 1.0</diffuse>
+        </material>
+      </visual>
+
+      <visual name="canopy_cluster_ny">
+        <pose>0 -1.1 1.1 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>1.4</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <ambient>0.13 0.36 0.10 1.0</ambient>
+          <diffuse>0.19 0.50 0.15 1.0</diffuse>
+        </material>
+      </visual>
+
+      <collision name="canopy_collision">
+        <pose>0 0 1.8 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>2.3</radius>
+          </sphere>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- Sway pitch joint: oscillates back and forth and bends downwind -->
+    <joint name="tree_sway_joint" type="revolute">
+      <parent>sway_yaw_link</parent>
+      <child>canopy</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-0.45</lower>
+          <upper>0.45</upper>
+        </limit>
+      </axis>
+    </joint>
+  </model>
+</sdf>

@@ -1,0 +1,6 @@
+board:
+  name: custom_h7_fc
+  full_name: Custom H7 flight controller
+  vendor: apx
+  socs:
+    - name: stm32h743xx

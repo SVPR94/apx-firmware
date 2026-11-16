@@ -1,0 +1,417 @@
+{
+ "board": "kakute_h7_mini",
+ "title": "Holybro Kakute H7 Mini",
+ "mcu": "STM32H743xx",
+ "notes": [
+  "SPI device lists include every part the board's revisions may carry."
+ ],
+ "groups": [
+  {
+   "kind": "usb",
+   "name": "SERIAL0 \u00b7 USB (OTG1)",
+   "side": "left",
+   "pins": [
+    [
+     "D-",
+     "PA11",
+     "OTG_FS_DM"
+    ],
+    [
+     "D+",
+     "PA12",
+     "OTG_FS_DP"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "gcs",
+     "name": "Ground station (USB)",
+     "role": "MAVLink, firmware upload",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL1 \u00b7 TELEM1 (USART1)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PA9",
+     "USART1_TX"
+    ],
+    [
+     "RX",
+     "PA10",
+     "USART1_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "radio",
+     "name": "Telemetry radio",
+     "role": "MAVLink to the ground station",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL2 \u00b7 TELEM2 (USART2)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PD5",
+     "USART2_TX"
+    ],
+    [
+     "RX",
+     "PD6",
+     "USART2_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "radio",
+     "name": "Telemetry / companion",
+     "role": "MAVLink",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL3 \u00b7 GPS1 (USART3)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PD8",
+     "USART3_TX"
+    ],
+    [
+     "RX",
+     "PD9",
+     "USART3_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "gps",
+     "name": "GPS + compass module",
+     "role": "primary GNSS",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL4 \u00b7 GPS2 (UART4)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PD1",
+     "UART4_TX"
+    ],
+    [
+     "RX",
+     "PD0",
+     "UART4_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "gps",
+     "name": "Second GPS",
+     "role": "secondary GNSS",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL6 \u00b7 RC input (USART6)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PC6",
+     "USART6_TX"
+    ],
+    [
+     "RX",
+     "PC7",
+     "USART6_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "rc",
+     "name": "RC receiver",
+     "role": "SBUS / CRSF / DSM",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL7 \u00b7 ESC telemetry (UART7)",
+   "side": "left",
+   "pins": [
+    [
+     "RX",
+     "PE7",
+     "UART7_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "esc",
+     "name": "ESC telemetry",
+     "role": "RPM, current, temperature",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "spi",
+   "name": "SPI1",
+   "side": "right",
+   "pins": [
+    [
+     "SCK",
+     "PA5",
+     "SPI1_SCK"
+    ],
+    [
+     "MISO",
+     "PA6",
+     "SPI1_MISO"
+    ],
+    [
+     "MOSI",
+     "PA7",
+     "SPI1_MOSI"
+    ],
+    [
+     "CS",
+     "PA4",
+     "FLASH_CS"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "flash",
+     "name": "DATAFLASH",
+     "role": "Flash: on-board logs",
+     "detail": "CS PA4"
+    }
+   ]
+  },
+  {
+   "kind": "spi",
+   "name": "SPI2",
+   "side": "right",
+   "pins": [
+    [
+     "SCK",
+     "PB13",
+     "SPI2_SCK"
+    ],
+    [
+     "MISO",
+     "PB14",
+     "SPI2_MISO"
+    ],
+    [
+     "MOSI",
+     "PB15",
+     "SPI2_MOSI"
+    ],
+    [
+     "CS",
+     "PB12",
+     "MAX7456_CS"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "osd",
+     "name": "OSD",
+     "role": "Analog video OSD",
+     "detail": "CS PB12"
+    }
+   ]
+  },
+  {
+   "kind": "spi",
+   "name": "SPI4",
+   "side": "right",
+   "pins": [
+    [
+     "SCK",
+     "PE2",
+     "SPI4_SCK"
+    ],
+    [
+     "MISO",
+     "PE5",
+     "SPI4_MISO"
+    ],
+    [
+     "MOSI",
+     "PE6",
+     "SPI4_MOSI"
+    ],
+    [
+     "CS",
+     "PE4",
+     "MPU6000_CS"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "imu",
+     "name": "MPU6000",
+     "role": "Gyro + accelerometer",
+     "detail": "CS PE4"
+    },
+    {
+     "icon": "imu",
+     "name": "ICM42688",
+     "role": "Gyro + accelerometer",
+     "detail": "CS PE4"
+    }
+   ]
+  },
+  {
+   "kind": "i2c",
+   "name": "I2C1 (external) \u00b7 bus 0",
+   "side": "right",
+   "pins": [
+    [
+     "SCL",
+     "PB6",
+     "I2C1_SCL"
+    ],
+    [
+     "SDA",
+     "PB7",
+     "I2C1_SDA"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "baro",
+     "name": "BMP280",
+     "role": "Barometer (altitude)",
+     "detail": "address 0x76"
+    },
+    {
+     "icon": "baro",
+     "name": "SPL06",
+     "role": "Barometer (altitude)",
+     "detail": "address 0x76"
+    }
+   ]
+  },
+  {
+   "kind": "pwm",
+   "name": "Motor outputs 1-9 (PWM / DShot)",
+   "side": "right",
+   "pins": [
+    [
+     "OUT 1",
+     "PB0",
+     "TIM3_CH3"
+    ],
+    [
+     "OUT 2",
+     "PB1",
+     "TIM3_CH4"
+    ],
+    [
+     "OUT 3",
+     "PB3",
+     "TIM2_CH2"
+    ],
+    [
+     "OUT 4",
+     "PB10",
+     "TIM2_CH3"
+    ],
+    [
+     "OUT 5",
+     "PA0",
+     "TIM5_CH1"
+    ],
+    [
+     "OUT 6",
+     "PA2",
+     "TIM5_CH3"
+    ],
+    [
+     "OUT 7",
+     "PC8",
+     "TIM8_CH3"
+    ],
+    [
+     "OUT 8",
+     "PC9",
+     "TIM8_CH4"
+    ],
+    [
+     "OUT 9",
+     "PD12",
+     "TIM4_CH1"
+    ]
+   ],
+   "devices": []
+  },
+  {
+   "kind": "adc",
+   "name": "Power & analog inputs (ADC)",
+   "side": "left",
+   "pins": [
+    [
+     "BATT_VOLTAGE_SENS",
+     "PC0",
+     "ADC1: battery voltage"
+    ],
+    [
+     "BATT_CURRENT_SENS",
+     "PC1",
+     "ADC1: battery current"
+    ],
+    [
+     "RSSI_ADC",
+     "PC5",
+     "ADC1: RSSI (link quality)"
+    ]
+   ],
+   "devices": []
+  },
+  {
+   "kind": "gpio",
+   "name": "LEDs, buzzer, power switches",
+   "side": "left",
+   "pins": [
+    [
+     "LED",
+     "PC2",
+     "LED0"
+    ],
+    [
+     "buzzer",
+     "PC13",
+     "BUZZER"
+    ]
+   ],
+   "devices": []
+  }
+ ],
+ "source": "generated by tools/import_board.py from the board's hardware description"
+}

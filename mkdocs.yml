@@ -1,0 +1,79 @@
+site_name: APX Flight Controller Documentation
+site_description: Modular, Aerospace-Grade Flight Controller Firmware & SITL Simulation Engine
+site_author: APX Aerospace Development Team
+repo_url: https://github.com/SVPR94/apx-firmware
+repo_name: Savita Pawar (SVPR94)/APX
+
+theme:
+  name: material
+  language: en
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Overview: README.md
+  - Architecture: architecture.md
+  - Modules: modules.md
+  - Code Structure: code-structure.md
+  - Core Interfaces: interfaces.md
+  - Build Guide: build.md
+  - Board Management: board-management.md
+  - Testing & QA: testing.md
+  - Troubleshooting: troubleshooting.md
+  - Git History: git-history.md
+  - Guides & Specifications:
+      - Getting Started: getting_started.md
+      - Driver Development: driver_guide.md
+      - Sensor Calibration: calibration_guide.md
+      - SITL Simulation: simulation_guide.md
+      - Multi-Estimator Architecture: APX_MULTI_ESTIMATOR_ARCHITECTURE.md
+      - CI/CD & Releases: TESTING_AND_CI_RELEASE_GUIDE.md
+      - Parameters: parameters/PARAMETER_REFERENCE.md
+  - AI Project Context: project-context.md
+  - C++ API Reference:
+      - API Overview: api/index.md
+      - Flight Control: api/control.md
+      - State Estimation: api/estimator.md
+      - Flight Modes: api/modes.md
+      - GCS & MAVLink: api/gcs.md
+      - Hardware Abstraction: api/hal.md
+      - Microkernel: api/kernel.md
+      - Device Drivers: api/drivers.md
+      - Platform Support: api/platform.md

@@ -1,0 +1,405 @@
+{
+ "board": "speedybee_f405_v4",
+ "title": "SpeedyBee F405 V4",
+ "mcu": "STM32F405xx",
+ "notes": [
+  "SPI device lists include every part the board's revisions may carry."
+ ],
+ "groups": [
+  {
+   "kind": "usb",
+   "name": "SERIAL0 \u00b7 USB (OTG1)",
+   "side": "left",
+   "pins": [
+    [
+     "D-",
+     "PA11",
+     "OTG_FS_DM"
+    ],
+    [
+     "D+",
+     "PA12",
+     "OTG_FS_DP"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "gcs",
+     "name": "Ground station (USB)",
+     "role": "MAVLink, firmware upload",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL1 \u00b7 TELEM1: DJI OSD (USART1)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PA9",
+     "USART1_TX"
+    ],
+    [
+     "RX",
+     "PA10",
+     "USART1_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "osd",
+     "name": "Digital video OSD",
+     "role": "MSP DisplayPort",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL2 \u00b7 TELEM2: RC input (USART2)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PA2",
+     "USART2_TX"
+    ],
+    [
+     "RX",
+     "PA3",
+     "USART2_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "rc",
+     "name": "RC receiver",
+     "role": "SBUS / CRSF / DSM",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL3 \u00b7 GPS1: unused (USART3)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PC10",
+     "USART3_TX"
+    ],
+    [
+     "RX",
+     "PC11",
+     "USART3_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "port",
+     "name": "Spare serial port",
+     "role": "user-assigned protocol",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL4 \u00b7 GPS2: unused (UART4)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PA0",
+     "UART4_TX"
+    ],
+    [
+     "RX",
+     "PA1",
+     "UART4_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "port",
+     "name": "Spare serial port",
+     "role": "user-assigned protocol",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL5 \u00b7 ESC telemetry (UART5)",
+   "side": "left",
+   "pins": [
+    [
+     "RX",
+     "PD2",
+     "UART5_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "esc",
+     "name": "ESC telemetry",
+     "role": "RPM, current, temperature",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL6 \u00b7 GPS (USART6)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PC6",
+     "USART6_TX"
+    ],
+    [
+     "RX",
+     "PC7",
+     "USART6_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "gps",
+     "name": "GPS + compass module",
+     "role": "GNSS",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "spi",
+   "name": "SPI1",
+   "side": "right",
+   "pins": [
+    [
+     "SCK",
+     "PA5",
+     "SPI1_SCK"
+    ],
+    [
+     "MISO",
+     "PA6",
+     "SPI1_MISO"
+    ],
+    [
+     "MOSI",
+     "PA7",
+     "SPI1_MOSI"
+    ],
+    [
+     "CS",
+     "PA4",
+     "GYRO1_CS"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "imu",
+     "name": "IMU1",
+     "role": "Gyro + accelerometer",
+     "detail": "CS PA4"
+    }
+   ]
+  },
+  {
+   "kind": "spi",
+   "name": "SPI2",
+   "side": "right",
+   "pins": [
+    [
+     "SCK",
+     "PB13",
+     "SPI2_SCK"
+    ],
+    [
+     "MISO",
+     "PC2",
+     "SPI2_MISO"
+    ],
+    [
+     "MOSI",
+     "PC3",
+     "SPI2_MOSI"
+    ],
+    [
+     "CS",
+     "PB12",
+     "OSD1_CS"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "osd",
+     "name": "OSD",
+     "role": "Analog video OSD",
+     "detail": "CS PB12"
+    }
+   ]
+  },
+  {
+   "kind": "spi",
+   "name": "SPI3",
+   "side": "right",
+   "pins": [
+    [
+     "SCK",
+     "PB3",
+     "SPI3_SCK"
+    ],
+    [
+     "MISO",
+     "PB4",
+     "SPI3_MISO"
+    ],
+    [
+     "MOSI",
+     "PB5",
+     "SPI3_MOSI"
+    ],
+    [
+     "CS",
+     "PC14",
+     "SDCARD1_CS"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "sd",
+     "name": "SDCARD",
+     "role": "microSD: logs, missions",
+     "detail": "CS PC14"
+    }
+   ]
+  },
+  {
+   "kind": "i2c",
+   "name": "I2C1 (external) \u00b7 bus 0",
+   "side": "right",
+   "pins": [
+    [
+     "SCL",
+     "PB8",
+     "I2C1_SCL"
+    ],
+    [
+     "SDA",
+     "PB9",
+     "I2C1_SDA"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "baro",
+     "name": "SPL06",
+     "role": "Barometer (altitude)",
+     "detail": "address 0x76"
+    }
+   ]
+  },
+  {
+   "kind": "pwm",
+   "name": "Motor outputs 1-9 (PWM / DShot)",
+   "side": "right",
+   "pins": [
+    [
+     "OUT 1",
+     "PB6",
+     "TIM4_CH1"
+    ],
+    [
+     "OUT 2",
+     "PB7",
+     "TIM4_CH2"
+    ],
+    [
+     "OUT 3",
+     "PB0",
+     "TIM3_CH3"
+    ],
+    [
+     "OUT 4",
+     "PB1",
+     "TIM3_CH4"
+    ],
+    [
+     "OUT 5",
+     "PC8",
+     "TIM8_CH3"
+    ],
+    [
+     "OUT 6",
+     "PC9",
+     "TIM8_CH4"
+    ],
+    [
+     "OUT 7",
+     "PB10",
+     "TIM2_CH3"
+    ],
+    [
+     "OUT 8",
+     "PA15",
+     "TIM2_CH1"
+    ],
+    [
+     "OUT 9",
+     "PA8",
+     "TIM1_CH1"
+    ]
+   ],
+   "devices": []
+  },
+  {
+   "kind": "adc",
+   "name": "Power & analog inputs (ADC)",
+   "side": "left",
+   "pins": [
+    [
+     "BATT_VOLTAGE_SENS",
+     "PC0",
+     "ADC1: battery voltage"
+    ],
+    [
+     "BATT_CURRENT_SENS",
+     "PC1",
+     "ADC1: battery current"
+    ],
+    [
+     "RSSI_ADC",
+     "PC5",
+     "ADC1: RSSI (link quality)"
+    ]
+   ],
+   "devices": []
+  },
+  {
+   "kind": "gpio",
+   "name": "LEDs, buzzer, power switches",
+   "side": "left",
+   "pins": [
+    [
+     "LED",
+     "PC13",
+     "LED0"
+    ],
+    [
+     "buzzer",
+     "PC15",
+     "BUZZER"
+    ]
+   ],
+   "devices": []
+  }
+ ],
+ "source": "generated by tools/import_board.py from the board's hardware description"
+}

@@ -1,0 +1,7 @@
+/* SPDX-License-Identifier: CC-BY-NC-4.0 */
+/* The bootloader image lives in the board's bootloader partition. */
+/ {
+	chosen {
+		zephyr,code-partition = &bootloader_partition;
+	};
+};

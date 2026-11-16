@@ -1,0 +1,120 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <world name="agricultural_field">
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+    
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+    
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <!-- 300x300m, not the previous 1000x1000m: still a huge
+                   margin around any test mission (which fly within
+                   ~10-50m of home), but a flat, featureless plane that
+                   size gave no visual sense of movement or heading at
+                   all - "am I actually moving, and which way" was
+                   unanswerable from the render alone. Shrinking it also
+                   raises the ground_field_albedo.png texture's effective
+                   resolution (px/m) for the same image size. -->
+              <size>300 300</size>
+            </plane>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>300 300</size>
+            </plane>
+          </geometry>
+          <!-- Procedurally generated "agricultural field" texture (see
+               models/apx_quad/materials/textures/field_albedo.png) -
+               alternating crop/soil furrow rows (8m spacing) so forward
+               travel is obviously visible, a 10m/50m reference grid for
+               distance and heading, and a red cross marking the world
+               origin (home position) for orientation. Self-generated
+               locally, not a downloaded asset. -->
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_map>model://apx_quad/materials/textures/field_albedo.png</albedo_map>
+                <roughness>0.9</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+    </model>
+    
+    <include>
+      <uri>apx_quad/model.sdf</uri>
+    </include>
+
+    <!-- Visual wind indicators -->
+    <include>
+      <name>windsock</name>
+      <uri>windsock/model.sdf</uri>
+      <pose>6 6 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>tree_1</name>
+      <uri>tree/model.sdf</uri>
+      <pose>18 14 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>tree_2</name>
+      <uri>tree/model.sdf</uri>
+      <pose>22 -16 0 0 0 0.8</pose>
+    </include>
+    <include>
+      <name>tree_3</name>
+      <uri>tree/model.sdf</uri>
+      <pose>-16 18 0 0 0 1.5</pose>
+    </include>
+    <include>
+      <name>tree_4</name>
+      <uri>tree/model.sdf</uri>
+      <pose>-20 -16 0 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>tree_5</name>
+      <uri>tree/model.sdf</uri>
+      <pose>28 0 0 0 0 0.4</pose>
+    </include>
+    <include>
+      <name>tree_6</name>
+      <uri>tree/model.sdf</uri>
+      <pose>-5 -26 0 0 0 2.9</pose>
+    </include>
+  </world>
+</sdf>

@@ -1,0 +1,92 @@
+/* SPDX-License-Identifier: CC-BY-NC-4.0 */
+/* Linker script for CubePilot Cube Orange+ (STM32H757xx Cortex-M7) */
+
+ENTRY(Reset_Handler)
+
+MEMORY
+{
+  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 2048K
+  DTCMRAM (xrw)   : ORIGIN = 0x20000000, LENGTH = 128K
+  AXISRAM (xrw)   : ORIGIN = 0x24000000, LENGTH = 512K
+  SRAM1 (xrw)     : ORIGIN = 0x30000000, LENGTH = 128K
+  SRAM2 (xrw)     : ORIGIN = 0x30020000, LENGTH = 128K
+  SRAM3 (xrw)     : ORIGIN = 0x30040000, LENGTH = 32K
+  SRAM4 (xrw)     : ORIGIN = 0x38000000, LENGTH = 64K
+  ITCMRAM (xrw)   : ORIGIN = 0x00000000, LENGTH = 64K
+}
+
+_estack = ORIGIN(DTCMRAM) + LENGTH(DTCMRAM);
+_min_stack_size = 0x2000; /* 8 KB */
+_min_heap_size  = 0x4000; /* 16 KB */
+
+SECTIONS
+{
+  .isr_vector :
+  {
+    . = ALIGN(4);
+    KEEP(*(.isr_vector))
+    . = ALIGN(4);
+  } >FLASH
+
+  .text :
+  {
+    . = ALIGN(4);
+    *(.text)
+    *(.text*)
+    *(.rodata)
+    *(.rodata*)
+    *(.glue_7)
+    *(.glue_7t)
+    *(.eh_frame)
+
+    KEEP (*(.init))
+    KEEP (*(.fini))
+
+    . = ALIGN(4);
+    _etext = .;
+  } >FLASH
+
+  _sidata = LOADADDR(.data);
+
+  .data :
+  {
+    . = ALIGN(4);
+    _sdata = .;
+    *(.data)
+    *(.data*)
+    . = ALIGN(4);
+    _edata = .;
+  } >AXISRAM AT> FLASH
+
+  . = ALIGN(4);
+  .bss :
+  {
+    _sbss = .;
+    __bss_start__ = _sbss;
+    *(.bss)
+    *(.bss*)
+    *(COMMON)
+    . = ALIGN(4);
+    _ebss = .;
+    __bss_end__ = _ebss;
+  } >AXISRAM
+
+  ._user_heap_stack :
+  {
+    . = ALIGN(8);
+    PROVIDE ( end = . );
+    PROVIDE ( _end = . );
+    . = . + _min_heap_size;
+    . = . + _min_stack_size;
+    . = ALIGN(8);
+  } >DTCMRAM
+
+  /DISCARD/ :
+  {
+    libc.a ( * )
+    libm.a ( * )
+    libgcc.a ( * )
+  }
+
+  .ARM.attributes 0 : { *(.ARM.attributes) }
+}

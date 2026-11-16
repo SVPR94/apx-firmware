@@ -1,0 +1,988 @@
+{
+ "board": "pixhawk6x",
+ "title": "Holybro Pixhawk 6X",
+ "mcu": "STM32H743xx",
+ "notes": [
+  "SPI device lists include every part the board's revisions may carry."
+ ],
+ "groups": [
+  {
+   "kind": "usb",
+   "name": "SERIAL0 \u00b7 USB (OTG1)",
+   "side": "left",
+   "pins": [
+    [
+     "D-",
+     "PA11",
+     "OTG_FS_DM"
+    ],
+    [
+     "D+",
+     "PA12",
+     "OTG_FS_DP"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "gcs",
+     "name": "Ground station (USB)",
+     "role": "MAVLink, firmware upload",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL1 \u00b7 TELEM1 (UART7)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PE8",
+     "UART7_TX"
+    ],
+    [
+     "RX",
+     "PF6",
+     "UART7_RX"
+    ],
+    [
+     "RTS",
+     "PF8",
+     "UART7_RTS"
+    ],
+    [
+     "CTS",
+     "PE10",
+     "UART7_CTS"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "radio",
+     "name": "Telemetry radio",
+     "role": "MAVLink to the ground station",
+     "detail": "RTS/CTS flow control"
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL2 \u00b7 TELEM2 (UART5)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PC12",
+     "UART5_TX"
+    ],
+    [
+     "RX",
+     "PD2",
+     "UART5_RX"
+    ],
+    [
+     "RTS",
+     "PC8",
+     "UART5_RTS"
+    ],
+    [
+     "CTS",
+     "PC9",
+     "UART5_CTS"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "radio",
+     "name": "Telemetry / companion",
+     "role": "MAVLink",
+     "detail": "RTS/CTS flow control"
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL3 \u00b7 GPS1 (USART1)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PB6",
+     "USART1_TX"
+    ],
+    [
+     "RX",
+     "PB7",
+     "USART1_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "gps",
+     "name": "GPS + compass module",
+     "role": "primary GNSS",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL4 \u00b7 GPS2 (UART8)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PE1",
+     "UART8_TX"
+    ],
+    [
+     "RX",
+     "PE0",
+     "UART8_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "gps",
+     "name": "Second GPS",
+     "role": "secondary GNSS",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL5 \u00b7 spare (USART2)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PD5",
+     "USART2_TX"
+    ],
+    [
+     "RX",
+     "PA3",
+     "USART2_RX"
+    ],
+    [
+     "RTS",
+     "PD4",
+     "USART2_RTS"
+    ],
+    [
+     "CTS",
+     "PD3",
+     "USART2_CTS"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "port",
+     "name": "Spare serial port",
+     "role": "user-assigned protocol",
+     "detail": "RTS/CTS flow control"
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL6 \u00b7 spare (UART4)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PH13",
+     "UART4_TX"
+    ],
+    [
+     "RX",
+     "PH14",
+     "UART4_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "port",
+     "name": "Spare serial port",
+     "role": "user-assigned protocol",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "serial",
+   "name": "SERIAL7 \u00b7 spare (USART3)",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PD8",
+     "USART3_TX"
+    ],
+    [
+     "RX",
+     "PD9",
+     "USART3_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "port",
+     "name": "Spare serial port",
+     "role": "user-assigned protocol",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "iomcu",
+   "name": "IO MCU link (USART6)",
+   "side": "right",
+   "pins": [
+    [
+     "TX",
+     "PC6",
+     "USART6_TX"
+    ],
+    [
+     "RX",
+     "PC7",
+     "USART6_RX"
+    ]
+   ],
+   "devices": [],
+   "iomcu": {
+    "mcu": "STM32F103xB",
+    "pins": [
+     [
+      "MAIN 1",
+      "PA0",
+      "TIM2_CH1"
+     ],
+     [
+      "MAIN 2",
+      "PA1",
+      "TIM2_CH2"
+     ],
+     [
+      "MAIN 3",
+      "PB8",
+      "TIM4_CH3"
+     ],
+     [
+      "MAIN 4",
+      "PB9",
+      "TIM4_CH4"
+     ],
+     [
+      "MAIN 5",
+      "PA6",
+      "TIM3_CH1"
+     ],
+     [
+      "MAIN 6",
+      "PA7",
+      "TIM3_CH2"
+     ],
+     [
+      "MAIN 7",
+      "PB0",
+      "TIM3_CH3"
+     ],
+     [
+      "MAIN 8",
+      "PB1",
+      "TIM3_CH4"
+     ],
+     [
+      "RC in (PPM/SBUS)",
+      "PA8",
+      "RCIN"
+     ],
+     [
+      "DSM / Spektrum in",
+      "PA10",
+      "USART1_RX"
+     ],
+     [
+      "SBUS out",
+      "PB10",
+      "USART3_TX"
+     ],
+     [
+      "safety switch",
+      "PB5",
+      "SAFETY_INPUT"
+     ],
+     [
+      "safety LED",
+      "PB13",
+      "SAFETY_LED"
+     ],
+     [
+      "servo rail sense",
+      "PA4",
+      "VSERVO"
+     ],
+     [
+      "RSSI in",
+      "PA5",
+      "VRSSI"
+     ],
+     [
+      "IMU heater",
+      "PB14",
+      "HEATER"
+     ],
+     [
+      "Spektrum power",
+      "PC13",
+      "SPEKTRUM_PWR_EN"
+     ],
+     [
+      "link TX (to main MCU RX)",
+      "PA2",
+      "USART2_TX"
+     ],
+     [
+      "link RX (from main MCU TX)",
+      "PA3",
+      "USART2_RX"
+     ],
+     [
+      "amber LED",
+      "PB15",
+      "AMBER_LED"
+     ],
+     [
+      "LED",
+      "PA11",
+      "RING_LED"
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "spi",
+   "name": "SPI1",
+   "side": "right",
+   "pins": [
+    [
+     "SCK",
+     "PA5",
+     "SPI1_SCK"
+    ],
+    [
+     "MISO",
+     "PG9",
+     "SPI1_MISO"
+    ],
+    [
+     "MOSI",
+     "PB5",
+     "SPI1_MOSI"
+    ],
+    [
+     "CS",
+     "PI9",
+     "SP1_CS1"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "imu",
+     "name": "ICM42670",
+     "role": "Gyro + accelerometer",
+     "detail": "CS PI9"
+    },
+    {
+     "icon": "imu",
+     "name": "ICM20649 (2)",
+     "role": "Gyro + accelerometer",
+     "detail": "CS PI9"
+    },
+    {
+     "icon": "imu",
+     "name": "ICM45686",
+     "role": "Gyro + accelerometer",
+     "detail": "CS PI9"
+    },
+    {
+     "icon": "imu",
+     "name": "ICM45686-1",
+     "role": "Gyro + accelerometer",
+     "detail": "CS PI9"
+    }
+   ]
+  },
+  {
+   "kind": "spi",
+   "name": "SPI2",
+   "side": "right",
+   "pins": [
+    [
+     "SCK",
+     "PI1",
+     "SPI2_SCK"
+    ],
+    [
+     "MISO",
+     "PI2",
+     "SPI2_MISO"
+    ],
+    [
+     "MOSI",
+     "PI3",
+     "SPI2_MOSI"
+    ],
+    [
+     "CS",
+     "PH5",
+     "SP2_CS1"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "imu",
+     "name": "ICM42688",
+     "role": "Gyro + accelerometer",
+     "detail": "CS PH5"
+    },
+    {
+     "icon": "imu",
+     "name": "IIM42652",
+     "role": "Gyro + accelerometer",
+     "detail": "CS PH5"
+    },
+    {
+     "icon": "imu",
+     "name": "ICM45686-2",
+     "role": "Gyro + accelerometer",
+     "detail": "CS PH5"
+    }
+   ]
+  },
+  {
+   "kind": "spi",
+   "name": "SPI3",
+   "side": "right",
+   "pins": [
+    [
+     "SCK",
+     "PC10",
+     "SPI3_SCK"
+    ],
+    [
+     "MISO",
+     "PC11",
+     "SPI3_MISO"
+    ],
+    [
+     "MOSI",
+     "PB2",
+     "SPI3_MOSI"
+    ],
+    [
+     "CS",
+     "PI8",
+     "SP3_CS2"
+    ],
+    [
+     "CS",
+     "PI4",
+     "SP3_CS1"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "imu",
+     "name": "BMI088 (g)",
+     "role": "Gyro + accelerometer",
+     "detail": "CS PI8"
+    },
+    {
+     "icon": "imu",
+     "name": "BMI088 (a)",
+     "role": "Gyro + accelerometer",
+     "detail": "CS PI4"
+    },
+    {
+     "icon": "imu",
+     "name": "ICM20649",
+     "role": "Gyro + accelerometer",
+     "detail": "CS PI4"
+    },
+    {
+     "icon": "imu",
+     "name": "ADIS16470",
+     "role": "Gyro + accelerometer",
+     "detail": "CS PI4"
+    },
+    {
+     "icon": "imu",
+     "name": "ICM45686-3",
+     "role": "Gyro + accelerometer",
+     "detail": "CS PI4"
+    }
+   ]
+  },
+  {
+   "kind": "spi",
+   "name": "SPI5",
+   "side": "right",
+   "pins": [
+    [
+     "SCK",
+     "PF7",
+     "SPI5_SCK"
+    ],
+    [
+     "MISO",
+     "PH7",
+     "SPI5_MISO"
+    ],
+    [
+     "MOSI",
+     "PF11",
+     "SPI5_MOSI"
+    ],
+    [
+     "CS",
+     "PG7",
+     "FRAM_CS"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "fram",
+     "name": "RAMTRON",
+     "role": "FRAM: parameter storage",
+     "detail": "CS PG7"
+    }
+   ]
+  },
+  {
+   "kind": "i2c",
+   "name": "I2C1 (external) \u00b7 bus 1",
+   "side": "right",
+   "pins": [
+    [
+     "SCL",
+     "PB8",
+     "I2C1_SCL"
+    ],
+    [
+     "SDA",
+     "PB9",
+     "I2C1_SDA"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "port",
+     "name": "I2C connector",
+     "role": "external sensors",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "i2c",
+   "name": "I2C2 (external) \u00b7 bus 2",
+   "side": "right",
+   "pins": [
+    [
+     "SCL",
+     "PF1",
+     "I2C2_SCL"
+    ],
+    [
+     "SDA",
+     "PF0",
+     "I2C2_SDA"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "baro",
+     "name": "BMP388",
+     "role": "Barometer (altitude)",
+     "detail": "address 0x76"
+    },
+    {
+     "icon": "baro",
+     "name": "BMP581",
+     "role": "Barometer (altitude)",
+     "detail": "address 0x46"
+    },
+    {
+     "icon": "baro",
+     "name": "ICP201XX",
+     "role": "Barometer (altitude)",
+     "detail": "address 0x63"
+    }
+   ]
+  },
+  {
+   "kind": "i2c",
+   "name": "I2C3 (external) \u00b7 bus 3",
+   "side": "right",
+   "pins": [
+    [
+     "SCL",
+     "PA8",
+     "I2C3_SCL"
+    ],
+    [
+     "SDA",
+     "PH8",
+     "I2C3_SDA"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "port",
+     "name": "I2C connector",
+     "role": "external sensors",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "i2c",
+   "name": "I2C4 (internal) \u00b7 bus 0",
+   "side": "right",
+   "pins": [
+    [
+     "SCL",
+     "PF14",
+     "I2C4_SCL"
+    ],
+    [
+     "SDA",
+     "PF15",
+     "I2C4_SDA"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "baro",
+     "name": "BMP388",
+     "role": "Barometer (altitude)",
+     "detail": "address 0x77"
+    },
+    {
+     "icon": "baro",
+     "name": "BMP581",
+     "role": "Barometer (altitude)",
+     "detail": "address 0x46"
+    },
+    {
+     "icon": "baro",
+     "name": "ICP201XX",
+     "role": "Barometer (altitude)",
+     "detail": "address 0x64"
+    },
+    {
+     "icon": "compass",
+     "name": "BMM150",
+     "role": "Magnetometer (heading)",
+     "detail": "address 0x10"
+    },
+    {
+     "icon": "compass",
+     "name": "RM3100",
+     "role": "Magnetometer (heading)",
+     "detail": "address 0x20"
+    }
+   ]
+  },
+  {
+   "kind": "pwm",
+   "name": "AUX 1-8 outputs (main MCU)",
+   "side": "right",
+   "pins": [
+    [
+     "AUX 1",
+     "PI0",
+     "TIM5_CH4"
+    ],
+    [
+     "AUX 2",
+     "PH12",
+     "TIM5_CH3"
+    ],
+    [
+     "AUX 3",
+     "PH11",
+     "TIM5_CH2"
+    ],
+    [
+     "AUX 4",
+     "PH10",
+     "TIM5_CH1"
+    ],
+    [
+     "AUX 5",
+     "PD13",
+     "TIM4_CH2"
+    ],
+    [
+     "AUX 6",
+     "PD14",
+     "TIM4_CH3"
+    ],
+    [
+     "AUX 7",
+     "PH6",
+     "TIM12_CH1"
+    ],
+    [
+     "AUX 8",
+     "PH9",
+     "TIM12_CH2"
+    ]
+   ],
+   "devices": []
+  },
+  {
+   "kind": "rcin",
+   "name": "RC input",
+   "side": "left",
+   "pins": [
+    [
+     "RCIN",
+     "PI5",
+     "TIM8_CH1"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "rc",
+     "name": "RC receiver",
+     "role": "PPM / SBUS / DSM / CRSF",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "can",
+   "name": "CAN1",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PD1",
+     "CAN1_TX"
+    ],
+    [
+     "RX",
+     "PD0",
+     "CAN1_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "can",
+     "name": "CAN bus (DroneCAN)",
+     "role": "GPS, compass, ESCs, power module",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "can",
+   "name": "CAN2",
+   "side": "left",
+   "pins": [
+    [
+     "TX",
+     "PB13",
+     "CAN2_TX"
+    ],
+    [
+     "RX",
+     "PB12",
+     "CAN2_RX"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "can",
+     "name": "CAN bus (DroneCAN)",
+     "role": "GPS, compass, ESCs, power module",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "sdmmc",
+   "name": "SDMMC2 (4-bit SD bus)",
+   "side": "right",
+   "pins": [
+    [
+     "CK",
+     "PD6",
+     "SDMMC2_CK"
+    ],
+    [
+     "CMD",
+     "PD7",
+     "SDMMC2_CMD"
+    ],
+    [
+     "D0",
+     "PB14",
+     "SDMMC2_D0"
+    ],
+    [
+     "D1",
+     "PB15",
+     "SDMMC2_D1"
+    ],
+    [
+     "D2",
+     "PG11",
+     "SDMMC2_D2"
+    ],
+    [
+     "D3",
+     "PB4",
+     "SDMMC2_D3"
+    ]
+   ],
+   "devices": [
+    {
+     "icon": "sd",
+     "name": "microSD card",
+     "role": "logs, missions, terrain",
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "kind": "adc",
+   "name": "Power & analog inputs (ADC)",
+   "side": "left",
+   "pins": [
+    [
+     "VDD_5V_SENS",
+     "PB1",
+     "ADC1: 5 V rail"
+    ],
+    [
+     "SCALED1_V3V3",
+     "PA0",
+     "ADC1: analog input"
+    ],
+    [
+     "ADC1_6V6",
+     "PC2",
+     "ADC1: analog input"
+    ],
+    [
+     "ADC1_3V3",
+     "PC3",
+     "ADC1: analog input"
+    ],
+    [
+     "SCALED2_V3V3",
+     "PA4",
+     "ADC1: analog input"
+    ],
+    [
+     "SCALED3_V3V3",
+     "PB0",
+     "ADC1: analog input"
+    ],
+    [
+     "SCALED4_V3V3",
+     "PF12",
+     "ADC1: analog input"
+    ]
+   ],
+   "devices": []
+  },
+  {
+   "kind": "gpio",
+   "name": "LEDs, buzzer, power switches",
+   "side": "left",
+   "pins": [
+    [
+     "LED",
+     "PD10",
+     "LED_SAFETY"
+    ],
+    [
+     "LED",
+     "PE3",
+     "LED_RED (red)"
+    ],
+    [
+     "LED",
+     "PE4",
+     "LED_GREEN (green)"
+    ],
+    [
+     "LED",
+     "PE5",
+     "LED_BLUE (blue)"
+    ],
+    [
+     "buzzer",
+     "PF9",
+     "TIM14_CH1"
+    ],
+    [
+     "safety",
+     "PF5",
+     "SAFETY_IN"
+    ],
+    [
+     "heater",
+     "PB10",
+     "HEATER_EN"
+    ],
+    [
+     "power",
+     "PC13",
+     "VDD_3V3_SD_CARD_EN"
+    ],
+    [
+     "power",
+     "PI11",
+     "VDD_3V3_SENSORS1_EN"
+    ],
+    [
+     "power",
+     "PF4",
+     "VDD_3V3_SENSORS2_EN"
+    ],
+    [
+     "power",
+     "PE7",
+     "VDD_3V3_SENSORS3_EN"
+    ],
+    [
+     "power",
+     "PG8",
+     "VDD_3V3_SENSORS4_EN"
+    ],
+    [
+     "power",
+     "PG10",
+     "nVDD_5V_HIPOWER_EN"
+    ],
+    [
+     "power",
+     "PG4",
+     "nVDD_5V_PERIPH_EN"
+    ]
+   ],
+   "devices": []
+  }
+ ],
+ "source": "generated by tools/import_board.py from the board's hardware description"
+}

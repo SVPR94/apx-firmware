@@ -1,0 +1,580 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="apx_quad">
+    <!-- Spawn well above the ground_plane (which sits at world Z=0) - the
+         landing gear's collision (landing_skid_collision, base_link
+         below) sits 0.20m below this origin, so anything closer than
+         that starts pre-embedded in the ground, which this physics
+         engine resolves into a settled position with several cm of
+         unexplained extra penetration rather than the clean ~0-penetration
+         contact a normal fall-and-land resolves to. -->
+    <pose>0 0 0.35 0 0 0</pose>
+    <!-- Downward Lidar/Radar Altimeter Frame (pointing straight down towards ground) -->
+    <frame name='lidar_frame' attached_to='base_link'>
+      <pose>0 0 -0.05 0 1.5707963 0</pose>
+    </frame>
+    <link name="base_link">
+      <inertial>
+        <mass>2.0</mass>
+        <inertia>
+          <ixx>0.015</ixx>
+          <iyy>0.015</iyy>
+          <izz>0.03</izz>
+        </inertia>
+      </inertial>
+
+      <!-- Central body (visual only now - see landing_skid_collision below
+           for what actually rests on the ground). Sized to 0.10x0.10
+           (real F450 center-plate scale) rather than the previous
+           0.2x0.2: at this frame's real arm length (0.225m, see the arms
+           below) and this model's actual propeller mesh radius
+           (~0.1295m, measured from meshes/prop_cw.dae), the propeller
+           disks reach as close as 0.225-0.1295=0.0955m to the body
+           center - a 0.2x0.2 box's CORNERS sit 0.1414m out (0.1*sqrt(2)),
+           well inside that 0.0955m reach, so the props visibly clipped
+           into the body's corners. 0.10x0.10 puts the corners at 0.0707m,
+           ~2.5cm clear. -->
+      <visual name="base_visual">
+        <geometry>
+          <box>
+            <size>0.10 0.10 0.07</size>
+          </box>
+        </geometry>
+        <material><ambient>0.12 0.12 0.15 1</ambient><diffuse>0.12 0.12 0.15 1</diffuse></material>
+      </visual>
+
+      <!-- Downward Altimeter Radar / Lidar Sensor Housing -->
+      <visual name="lidar_visual">
+        <pose>0 0 -0.04 0 0 0</pose>
+        <geometry><cylinder><radius>0.025</radius><length>0.015</length></cylinder></geometry>
+        <material><ambient>0.08 0.08 0.08 1</ambient><diffuse>0.1 0.1 0.1 1</diffuse></material>
+      </visual>
+
+      <!-- Downward GPU Lidar Altimeter to visualize radar sensor range (50° x 40°, 2m to 30m) -->
+      <sensor name='gpu_lidar' type='gpu_lidar'>
+        <pose relative_to='lidar_frame'>0 0 0 0 0 0</pose>
+        <topic>lidar</topic>
+        <update_rate>10</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>640</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.436332</min_angle>
+              <max_angle>0.436332</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>16</samples>
+              <resolution>0.01</resolution>
+              <min_angle>-0.349066</min_angle>
+              <max_angle>0.349066</max_angle>
+            </vertical>
+          </scan>
+          <range>
+            <min>2.0</min>
+            <max>30.0</max>
+            <resolution>0.01</resolution>
+          </range>
+        </ray>
+        <always_on>1</always_on>
+        <visualize>true</visualize>
+      </sensor>
+
+      <!-- Body collision, matching base_visual: previously the ONLY
+           collision on this link was landing_skid_collision below, a
+           thin plate sized and positioned for a normal UPRIGHT landing.
+           On a crash where the vehicle tumbles (not upright), that thin
+           foot-level plate is no longer the lowest point of the vehicle
+           relative to the ground, and since nothing else had collision
+           geometry, the actual body mass fell straight through the
+           ground plane with nothing to stop it - the "goes inside the
+           surface" bug. This box (plus the per-motor collisions below)
+           gives the vehicle's real silhouette something solid to land on
+           no matter how it's oriented when it hits. -->
+      <collision name="body_collision">
+        <geometry>
+          <box>
+            <size>0.10 0.10 0.07</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode><max_vel>20.0</max_vel><min_depth>0.001</min_depth></ode>
+          </contact>
+          <friction>
+            <ode><mu>1.0</mu><mu2>1.0</mu2></ode>
+          </friction>
+          <bounce><restitution_coefficient>0.0</restitution_coefficient><threshold>0.01</threshold></bounce>
+        </surface>
+      </collision>
+
+      <!-- Ground contact for a normal, upright landing belongs at the
+           feet, not the belly: a collision box sized to the actual foot
+           spread (feet are at +-0.159m, see the legs below), placed at
+           the feet's height, makes it rest on its landing gear like the
+           visual suggests. -->
+      <collision name="landing_skid_collision">
+        <!-- Bottom face at local z=-0.20, exactly matching the feet
+             (leg_*/foot_* visuals below) - see the model-level <pose>
+             above for why this doesn't start pre-embedded in the ground
+             at spawn (it did at the old 0.15m spawn height, which this
+             offset collision box resolved into a settled state with
+             several cm of unexplained penetration; starting above ground
+             and letting it fall the last few cm resolves clean instead).
+             max_vel raised from 0.1 to 20.0: ODE/DART caps how fast a
+             penetrating contact is allowed to be pushed back OUT each
+             step at this value - 0.1 m/s was fine for a gentle landing
+             but on a real crash (several m/s vertical speed at impact)
+             it couldn't push the vehicle back out of the ground faster
+             than 0.1 m/s, so penetration accumulated over many steps
+             before correction caught up, visibly sinking the model into
+             the terrain. 20.0 m/s lets it resolve a hard impact within a
+             step or two while bounce stays off (see <bounce> below) so
+             it doesn't turn into a bounce/pop artifact instead. -->
+        <pose>0 0 -0.19 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.4 0.4 0.02</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode><max_vel>20.0</max_vel><min_depth>0.001</min_depth></ode>
+          </contact>
+          <friction>
+            <ode><mu>1.0</mu><mu2>1.0</mu2></ode>
+          </friction>
+          <bounce><restitution_coefficient>0.0</restitution_coefficient><threshold>0.01</threshold></bounce>
+        </surface>
+      </collision>
+
+      <!-- FC/GPS mast - purely cosmetic, gives the silhouette a "top" -->
+      <visual name="mast_visual">
+        <pose>0 0 0.09 0 0 0</pose>
+        <geometry><cylinder><radius>0.015</radius><length>0.08</length></cylinder></geometry>
+        <material><ambient>0.05 0.05 0.05 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+
+      <!-- Arms: body center -> each motor position (Quad-X layout below).
+           Visual only; length/yaw computed to exactly span
+           center->motor_xy for each of the 4 motor positions.
+           F450-class frame: 225mm center-to-motor arm (450mm motor-to-
+           motor diagonal) standard quadrotor reference geometry. -->
+      <visual name="arm_fr_visual"> <!-- -> motor1 (0.159,-0.159) -->
+        <pose>0.0795 -0.0795 0 0 0 -0.785398</pose>
+        <geometry><box><size>0.225 0.03 0.02</size></box></geometry>
+        <material><ambient>0.12 0.12 0.15 1</ambient><diffuse>0.12 0.12 0.15 1</diffuse></material>
+      </visual>
+      <visual name="arm_bl_visual"> <!-- -> motor2 (-0.159,0.159) -->
+        <pose>-0.0795 0.0795 0 0 0 2.356194</pose>
+        <geometry><box><size>0.225 0.03 0.02</size></box></geometry>
+        <material><ambient>0.12 0.12 0.15 1</ambient><diffuse>0.12 0.12 0.15 1</diffuse></material>
+      </visual>
+      <visual name="arm_fl_visual"> <!-- -> motor3 (0.159,0.159) -->
+        <pose>0.0795 0.0795 0 0 0 0.785398</pose>
+        <geometry><box><size>0.225 0.03 0.02</size></box></geometry>
+        <material><ambient>0.12 0.12 0.15 1</ambient><diffuse>0.12 0.12 0.15 1</diffuse></material>
+      </visual>
+      <visual name="arm_br_visual"> <!-- -> motor4 (-0.159,-0.159) -->
+        <pose>-0.0795 -0.0795 0 0 0 -2.356194</pose>
+        <geometry><box><size>0.225 0.03 0.02</size></box></geometry>
+        <material><ambient>0.12 0.12 0.15 1</ambient><diffuse>0.12 0.12 0.15 1</diffuse></material>
+      </visual>
+
+      <!-- Landing legs: straight struts down to a foot pad. Previously
+           these spanned local z=-0.05 to z=-0.20, but the arms (above)
+           sit at z=0 with 0.02m thickness (bottom edge at z=-0.01), so
+           there was a bare 0.04m gap between the arm/motor mount and the
+           leg's top with nothing bridging it - visually the legs looked
+           unattached, floating below the airframe instead of standing on
+           it. Extended up to z=-0.01 (the arm's own bottom edge) so the
+           leg now visually meets the arm exactly where the motor mounts
+           to it, keeping the foot position (z=-0.20, matching
+           landing_skid_collision) unchanged. -->
+      <visual name="leg_fr_visual">
+        <pose>0.159 -0.159 -0.105 0 0 0</pose>
+        <geometry><box><size>0.02 0.02 0.19</size></box></geometry>
+        <material><ambient>0.05 0.05 0.05 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="foot_fr_visual">
+        <pose>0.159 -0.159 -0.2 0 0 0</pose>
+        <geometry><box><size>0.05 0.05 0.01</size></box></geometry>
+        <material><ambient>0.05 0.05 0.05 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="leg_bl_visual">
+        <pose>-0.159 0.159 -0.105 0 0 0</pose>
+        <geometry><box><size>0.02 0.02 0.19</size></box></geometry>
+        <material><ambient>0.05 0.05 0.05 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="foot_bl_visual">
+        <pose>-0.159 0.159 -0.2 0 0 0</pose>
+        <geometry><box><size>0.05 0.05 0.01</size></box></geometry>
+        <material><ambient>0.05 0.05 0.05 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="leg_fl_visual">
+        <pose>0.159 0.159 -0.105 0 0 0</pose>
+        <geometry><box><size>0.02 0.02 0.19</size></box></geometry>
+        <material><ambient>0.05 0.05 0.05 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="foot_fl_visual">
+        <pose>0.159 0.159 -0.2 0 0 0</pose>
+        <geometry><box><size>0.05 0.05 0.01</size></box></geometry>
+        <material><ambient>0.05 0.05 0.05 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="leg_br_visual">
+        <pose>-0.159 -0.159 -0.105 0 0 0</pose>
+        <geometry><box><size>0.02 0.02 0.19</size></box></geometry>
+        <material><ambient>0.05 0.05 0.05 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+      <visual name="foot_br_visual">
+        <pose>-0.159 -0.159 -0.2 0 0 0</pose>
+        <geometry><box><size>0.05 0.05 0.01</size></box></geometry>
+        <material><ambient>0.05 0.05 0.05 1</ambient><diffuse>0.05 0.05 0.05 1</diffuse></material>
+      </visual>
+
+      <!-- Spray boom + nozzles driven by Servo 9 -->
+      <visual name="spray_boom_visual">
+        <pose>0 0 -0.15 1.570796 0 0</pose>
+        <geometry><cylinder><radius>0.008</radius><length>0.60</length></cylinder></geometry>
+        <material><ambient>0.20 0.20 0.22 1</ambient><diffuse>0.25 0.25 0.28 1</diffuse></material>
+      </visual>
+      <visual name="nozzle1_visual">
+        <pose>0 -0.25 -0.16 0 0 0</pose>
+        <geometry><cylinder><radius>0.012</radius><length>0.03</length></cylinder></geometry>
+        <material><ambient>0.9 0.45 0.05 1</ambient><diffuse>0.95 0.5 0.1 1</diffuse></material>
+      </visual>
+      <particle_emitter name="nozzle1" type="box">
+        <pose>0 -0.25 -0.18 0 1.570796 0</pose>
+        <emitting>false</emitting>
+        <size>0.02 0.20 0.05</size>
+        <particle_size>0.025 0.025 0.025</particle_size>
+        <lifetime>0.45</lifetime>
+        <rate>0</rate>
+        <min_velocity>2.5</min_velocity>
+        <max_velocity>4.0</max_velocity>
+        <scale_rate>0.5</scale_rate>
+        <color_start>0.88 0.94 1.0 0.45</color_start>
+        <color_end>0.88 0.94 1.0 0.0</color_end>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <pbr><metal><albedo_map>model://apx_quad/materials/textures/spray_droplet.png</albedo_map></metal></pbr>
+        </material>
+        <topic>/apx/spray/nozzle1</topic>
+      </particle_emitter>
+      <visual name="nozzle2_visual">
+        <pose>0 0.25 -0.16 0 0 0</pose>
+        <geometry><cylinder><radius>0.012</radius><length>0.03</length></cylinder></geometry>
+        <material><ambient>0.9 0.45 0.05 1</ambient><diffuse>0.95 0.5 0.1 1</diffuse></material>
+      </visual>
+      <particle_emitter name="nozzle2" type="box">
+        <pose>0 0.25 -0.18 0 1.570796 0</pose>
+        <emitting>false</emitting>
+        <size>0.02 0.20 0.05</size>
+        <particle_size>0.025 0.025 0.025</particle_size>
+        <lifetime>0.45</lifetime>
+        <rate>0</rate>
+        <min_velocity>2.5</min_velocity>
+        <max_velocity>4.0</max_velocity>
+        <scale_rate>0.5</scale_rate>
+        <color_start>0.88 0.94 1.0 0.45</color_start>
+        <color_end>0.88 0.94 1.0 0.0</color_end>
+        <material>
+          <diffuse>1 1 1 1</diffuse>
+          <pbr><metal><albedo_map>model://apx_quad/materials/textures/spray_droplet.png</albedo_map></metal></pbr>
+        </material>
+        <topic>/apx/spray/nozzle2</topic>
+      </particle_emitter>
+    </link>
+
+    <!-- Quad-X motor layout (matches vehicles/multirotor/quad_x.cpp comments
+         and modules/flight_control/mixer/motor_geometry.hpp QUAD_X_MOTORS
+         ordering): motor1=Front-Right, motor2=Rear-Left, motor3=Front-Left,
+         motor4=Rear-Right. Each is a revolute joint about local Z so the
+         apx_gazebo_plugin can spin it via JointVelocityCmd from
+         motor_throttle[]. The elongated box visual (vs. a symmetric disc)
+         makes the spin actually visible. -->
+    <link name="motor1">
+      <pose>0.159 -0.159 0.02 0 0 0</pose>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0001</izz></inertia>
+      </inertial>
+      <!-- Front motor (Front-Right) - red housing marks the front, same
+           convention most real multirotors use so orientation is readable
+           at a glance. -->
+      <visual name="motor1_housing_visual">
+        <geometry><cylinder><radius>0.02</radius><length>0.03</length></cylinder></geometry>
+        <material><ambient>0.8 0.1 0.1 1</ambient><diffuse>0.8 0.1 0.1 1</diffuse></material>
+      </visual>
+      <!-- Real 2-blade prop mesh (CCW, matches this motor's direction=-1)
+           instead of a flat box - see meshes/THIRD_PARTY_NOTICES.md for
+           provenance/license (LGPL-3.0; APX's own code/SDF/plugin is unaffected). -->
+      <visual name="motor1_visual">
+        <pose>0 0 0.017 0 0 0</pose>
+        <geometry><mesh><scale>1 1 1</scale><uri>model://apx_quad/meshes/prop_ccw.dae</uri></mesh></geometry>
+      </visual>
+      <!-- Collision at the motor/arm-tip position - see body_collision's
+           comment on base_link for why this matters: without collision
+           geometry out here at the arm tips, a crash landing on its side
+           (arms first, not the feet) had nothing to stop the arm/motor
+           from sinking into the ground. -->
+      <collision name="motor1_collision">
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
+        <surface>
+          <contact><ode><max_vel>20.0</max_vel><min_depth>0.001</min_depth></ode></contact>
+          <friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction>
+          <bounce><restitution_coefficient>0.0</restitution_coefficient><threshold>0.01</threshold></bounce>
+        </surface>
+      </collision>
+    </link>
+    <joint name="joint1" type="revolute">
+      <parent>base_link</parent>
+      <child>motor1</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <!-- effort here is a REAL physical limit, not just "make it spin
+             fast enough": DART's JointVelocityCmd forces the joint to
+             track the commanded velocity by applying whatever torque
+             `effort` allows, every physics step. An earlier version of
+             this set effort=1000 (N.m) to fix the propeller visually
+             spinning too slowly - but with mixer output (and therefore
+             commanded prop speed) changing every firmware tick under any
+             active control loop, that let the joint yank huge, rapidly
+             reversing torques through this joint into base_link (Newton's
+             third law) on every such change - a real reaction, an
+             unintentional one, an order of magnitude bigger than the
+             deliberate rotor-drag torque apx_gazebo_plugin.cpp applies via
+             kYawDragCoeff. It looked exactly like a chaotic yaw
+             instability (which it was) with roll/pitch coupled in via
+             cross-axis inertia. A low effort limit still reaches full
+             commanded RPM (this small propeller's own inertia is tiny),
+             just not instantly - which is what stops the transient
+             reaction torque from being large enough to matter. -->
+        <limit>
+          <lower>-1e16</lower>
+          <upper>1e16</upper>
+          <effort>0.01</effort>
+          <velocity>1000</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name="motor2">
+      <pose>-0.159 0.159 0.02 0 0 0</pose>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0001</izz></inertia>
+      </inertial>
+      <!-- Rear motor (Rear-Left) - dark housing. -->
+      <visual name="motor2_housing_visual">
+        <geometry><cylinder><radius>0.02</radius><length>0.03</length></cylinder></geometry>
+        <material><ambient>0.15 0.15 0.15 1</ambient><diffuse>0.15 0.15 0.15 1</diffuse></material>
+      </visual>
+      <!-- CCW prop mesh (direction=-1), same asset as motor1. -->
+      <visual name="motor2_visual">
+        <pose>0 0 0.017 0 0 0</pose>
+        <geometry><mesh><scale>1 1 1</scale><uri>model://apx_quad/meshes/prop_ccw.dae</uri></mesh></geometry>
+      </visual>
+      <collision name="motor2_collision">
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
+        <surface>
+          <contact><ode><max_vel>20.0</max_vel><min_depth>0.001</min_depth></ode></contact>
+          <friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction>
+          <bounce><restitution_coefficient>0.0</restitution_coefficient><threshold>0.01</threshold></bounce>
+        </surface>
+      </collision>
+    </link>
+    <joint name="joint2" type="revolute">
+      <parent>base_link</parent>
+      <child>motor2</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <!-- effort here is a REAL physical limit, not just "make it spin
+             fast enough": DART's JointVelocityCmd forces the joint to
+             track the commanded velocity by applying whatever torque
+             `effort` allows, every physics step. An earlier version of
+             this set effort=1000 (N.m) to fix the propeller visually
+             spinning too slowly - but with mixer output (and therefore
+             commanded prop speed) changing every firmware tick under any
+             active control loop, that let the joint yank huge, rapidly
+             reversing torques through this joint into base_link (Newton's
+             third law) on every such change - a real reaction, an
+             unintentional one, an order of magnitude bigger than the
+             deliberate rotor-drag torque apx_gazebo_plugin.cpp applies via
+             kYawDragCoeff. It looked exactly like a chaotic yaw
+             instability (which it was) with roll/pitch coupled in via
+             cross-axis inertia. A low effort limit still reaches full
+             commanded RPM (this small propeller's own inertia is tiny),
+             just not instantly - which is what stops the transient
+             reaction torque from being large enough to matter. -->
+        <limit>
+          <lower>-1e16</lower>
+          <upper>1e16</upper>
+          <effort>0.01</effort>
+          <velocity>1000</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name="motor3">
+      <pose>0.159 0.159 0.02 0 0 0</pose>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0001</izz></inertia>
+      </inertial>
+      <!-- Front motor (Front-Left) - red housing, same as motor1. -->
+      <visual name="motor3_housing_visual">
+        <geometry><cylinder><radius>0.02</radius><length>0.03</length></cylinder></geometry>
+        <material><ambient>0.8 0.1 0.1 1</ambient><diffuse>0.8 0.1 0.1 1</diffuse></material>
+      </visual>
+      <!-- CW prop mesh (direction=+1). -->
+      <visual name="motor3_visual">
+        <pose>0 0 0.017 0 0 0</pose>
+        <geometry><mesh><scale>1 1 1</scale><uri>model://apx_quad/meshes/prop_cw.dae</uri></mesh></geometry>
+      </visual>
+      <collision name="motor3_collision">
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
+        <surface>
+          <contact><ode><max_vel>20.0</max_vel><min_depth>0.001</min_depth></ode></contact>
+          <friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction>
+          <bounce><restitution_coefficient>0.0</restitution_coefficient><threshold>0.01</threshold></bounce>
+        </surface>
+      </collision>
+    </link>
+    <joint name="joint3" type="revolute">
+      <parent>base_link</parent>
+      <child>motor3</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <!-- effort here is a REAL physical limit, not just "make it spin
+             fast enough": DART's JointVelocityCmd forces the joint to
+             track the commanded velocity by applying whatever torque
+             `effort` allows, every physics step. An earlier version of
+             this set effort=1000 (N.m) to fix the propeller visually
+             spinning too slowly - but with mixer output (and therefore
+             commanded prop speed) changing every firmware tick under any
+             active control loop, that let the joint yank huge, rapidly
+             reversing torques through this joint into base_link (Newton's
+             third law) on every such change - a real reaction, an
+             unintentional one, an order of magnitude bigger than the
+             deliberate rotor-drag torque apx_gazebo_plugin.cpp applies via
+             kYawDragCoeff. It looked exactly like a chaotic yaw
+             instability (which it was) with roll/pitch coupled in via
+             cross-axis inertia. A low effort limit still reaches full
+             commanded RPM (this small propeller's own inertia is tiny),
+             just not instantly - which is what stops the transient
+             reaction torque from being large enough to matter. -->
+        <limit>
+          <lower>-1e16</lower>
+          <upper>1e16</upper>
+          <effort>0.01</effort>
+          <velocity>1000</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name="motor4">
+      <pose>-0.159 -0.159 0.02 0 0 0</pose>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0001</izz></inertia>
+      </inertial>
+      <!-- Rear motor (Rear-Right) - dark housing, same as motor2. -->
+      <visual name="motor4_housing_visual">
+        <geometry><cylinder><radius>0.02</radius><length>0.03</length></cylinder></geometry>
+        <material><ambient>0.15 0.15 0.15 1</ambient><diffuse>0.15 0.15 0.15 1</diffuse></material>
+      </visual>
+      <!-- CW prop mesh (direction=+1), same asset as motor3. -->
+      <visual name="motor4_visual">
+        <pose>0 0 0.017 0 0 0</pose>
+        <geometry><mesh><scale>1 1 1</scale><uri>model://apx_quad/meshes/prop_cw.dae</uri></mesh></geometry>
+      </visual>
+      <collision name="motor4_collision">
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
+        <surface>
+          <contact><ode><max_vel>20.0</max_vel><min_depth>0.001</min_depth></ode></contact>
+          <friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction>
+          <bounce><restitution_coefficient>0.0</restitution_coefficient><threshold>0.01</threshold></bounce>
+        </surface>
+      </collision>
+    </link>
+    <joint name="joint4" type="revolute">
+      <parent>base_link</parent>
+      <child>motor4</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <!-- effort here is a REAL physical limit, not just "make it spin
+             fast enough": DART's JointVelocityCmd forces the joint to
+             track the commanded velocity by applying whatever torque
+             `effort` allows, every physics step. An earlier version of
+             this set effort=1000 (N.m) to fix the propeller visually
+             spinning too slowly - but with mixer output (and therefore
+             commanded prop speed) changing every firmware tick under any
+             active control loop, that let the joint yank huge, rapidly
+             reversing torques through this joint into base_link (Newton's
+             third law) on every such change - a real reaction, an
+             unintentional one, an order of magnitude bigger than the
+             deliberate rotor-drag torque apx_gazebo_plugin.cpp applies via
+             kYawDragCoeff. It looked exactly like a chaotic yaw
+             instability (which it was) with roll/pitch coupled in via
+             cross-axis inertia. A low effort limit still reaches full
+             commanded RPM (this small propeller's own inertia is tiny),
+             just not instantly - which is what stops the transient
+             reaction torque from being large enough to matter. -->
+        <limit>
+          <lower>-1e16</lower>
+          <upper>1e16</upper>
+          <effort>0.01</effort>
+          <velocity>1000</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.0</damping>
+          <friction>0.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <plugin name="apx_gazebo_plugin" filename="apx_gazebo_plugin.so">
+      <!-- Body drag Cd*A (m^2) against the wind; estimate, not measured. -->
+      <drag_area_m2>0.04</drag_area_m2>
+      <motor>
+        <link>motor1</link>
+        <joint>joint1</joint>
+        <direction>-1</direction>
+      </motor>
+      <motor>
+        <link>motor2</link>
+        <joint>joint2</joint>
+        <direction>-1</direction>
+      </motor>
+      <motor>
+        <link>motor3</link>
+        <joint>joint3</joint>
+        <direction>1</direction>
+      </motor>
+      <motor>
+        <link>motor4</link>
+        <joint>joint4</joint>
+        <direction>1</direction>
+      </motor>
+      <spray>
+        <pump_channel>9</pump_channel>
+        <max_rate>500</max_rate>
+        <topic>/apx/spray/nozzle1</topic>
+        <topic>/apx/spray/nozzle2</topic>
+      </spray>
+    </plugin>
+  </model>
+</sdf>
